@@ -1,0 +1,23 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+// src/users/dto/create-user.dto.ts
+import { IsEmail, IsEnum, IsNotEmpty, MinLength } from "class-validator";
+
+export enum UserRole {
+  ADMIN = "admin",
+  USER = "user",
+  LIBRARIAN = "librarian",
+}
+
+export class CreateUserDto {
+  @IsNotEmpty()
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @MinLength(6)
+  password: string;
+
+  @IsEnum(UserRole, { message: "role must be admin, user, or librarian" })
+  role: UserRole;
+}
