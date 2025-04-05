@@ -6,6 +6,12 @@ export type BookDocument = Book & Document;
 @Schema()
 export class Book {
   @Prop({ required: true })
+  copyId: string;
+
+  @Prop({ required: true })
+  bookId: string;
+
+  @Prop({ required: true })
   title: string;
 
   @Prop({ required: true })
@@ -17,11 +23,11 @@ export class Book {
   @Prop({ required: true })
   category: string;
 
+  @Prop({ required: true })
+  location: string;
+
   @Prop({ default: true })
   available: boolean;
-
-  @Prop({ default: Date.now })
-  addedAt: Date;
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);

@@ -6,16 +6,22 @@ export type DigitalResourceDocument = DigitalResource & Document;
 @Schema()
 export class DigitalResource {
   @Prop({ required: true })
+  resourceId: string;
+
+  @Prop({ required: true })
   title: string;
 
   @Prop({ required: true })
-  description: string;
+  author: string;
 
   @Prop({ required: true })
-  downloadUrl: string;
+  category: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true })
+  fileUrl: string;
+
+  @Prop({ required: true })
+  cost: number;
 }
 
 export const DigitalResourceSchema =

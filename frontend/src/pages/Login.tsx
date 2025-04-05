@@ -14,7 +14,7 @@ export default function Login() {
         password,
       });
       localStorage.setItem("token", res.data.access_token);
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       alert("Invalid credentials");
     }

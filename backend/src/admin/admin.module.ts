@@ -9,6 +9,10 @@ import {
   Transaction,
   TransactionSchema,
 } from "../transactions/transactions.schema";
+import {
+  DigitalResource,
+  DigitalResourceSchema,
+} from "src/digital-resources/digital-resources.schema";
 
 @Module({
   imports: [
@@ -16,6 +20,7 @@ import {
       { name: Admin.name, schema: AdminSchema },
       { name: User.name, schema: UserSchema },
       { name: Book.name, schema: BookSchema },
+      { name: DigitalResource.name, schema: DigitalResourceSchema },
       { name: Transaction.name, schema: TransactionSchema },
     ]),
   ],

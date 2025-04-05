@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Books() {
@@ -17,7 +17,6 @@ export default function Books() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Books</h1>
       <ul className="space-y-2">
         {books.map((book: any) => (
           <li key={book._id} className="border p-4 rounded shadow">
