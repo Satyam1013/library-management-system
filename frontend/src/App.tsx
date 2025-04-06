@@ -8,9 +8,11 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/Admin";
+import Books from "./pages/Books";
 import { jwtDecode } from "jwt-decode";
 import { JSX } from "react";
-import Books from "./pages/Books";
+import MainLayout from "./components/MainLayout";
+import DigitalResources from "./pages/Digital-Resources";
 
 interface DecodedToken {
   role: string;
@@ -18,7 +20,6 @@ interface DecodedToken {
   exp: number;
 }
 
-// Helper to get role from token
 const getUserRole = (): string | null => {
   const token = localStorage.getItem("token");
   if (!token) return null;
@@ -34,7 +35,6 @@ const getUserRole = (): string | null => {
   }
 };
 
-// Role-based private route
 const PrivateRoute = ({
   element,
   allowedRoles,
@@ -52,11 +52,9 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* Routes without Navbar */}
         <Route path="/login" element={<Login />} />
-        <Route path="/books" element={<Books />} />
-        {/* Admin Route */}
+        <Route path="/signup" element={<Signup />} />
         <Route
           path="/admin"
           element={
@@ -66,14 +64,31 @@ export default function App() {
             />
           }
         />
-
-        {/* You can add more like this for user-only routes in future */}
-        {/* <Route
-          path="/profile"
+        {/* Routes with Navbar via Layout */}
+        <Route
+          path="/"
           element={
-            <PrivateRoute allowedRoles={["user"]} element={<UserProfile />} />
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
           }
-        /> */}
+        />
+        <Route
+          path="/books"
+          element={
+            <MainLayout>
+              <Books />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/resources"
+          element={
+            <MainLayout>
+              <DigitalResources />
+            </MainLayout>
+          }
+        />
       </Routes>
     </Router>
   );

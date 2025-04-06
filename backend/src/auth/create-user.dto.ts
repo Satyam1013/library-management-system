@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-// src/users/dto/create-user.dto.ts
 import { IsEmail, IsEnum, IsNotEmpty, MinLength } from "class-validator";
 
 export enum UserRole {

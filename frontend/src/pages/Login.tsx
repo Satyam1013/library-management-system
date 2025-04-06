@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  role: string;
+  sub: string;
+  exp: number;
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,8 +20,16 @@ export default function Login() {
         email,
         password,
       });
-      localStorage.setItem("token", res.data.access_token);
-      navigate("/");
+      const token = res.data.access_token;
+      localStorage.setItem("token", token);
+
+      const decoded = jwtDecode<DecodedToken>(token);
+
+      if (decoded.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       alert("Invalid credentials");
     }

@@ -1,17 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-
-interface Book {
-  _id?: string;
-  copyId: string;
-  bookId: string;
-  title: string;
-  author: string;
-  isbn: string;
-  category: string;
-  location: string;
-  available: boolean;
-}
+import { Book } from "../types/books";
 
 interface DigitalResource {
   _id?: string;
@@ -36,7 +25,7 @@ export default function AdminDashboard() {
     isbn: "",
     category: "",
     location: "",
-    available: true,
+    status: "available", // 🆕
   });
 
   // eBooks state
@@ -62,7 +51,7 @@ export default function AdminDashboard() {
   };
 
   const addBook = async () => {
-    await axios.post("http://localhost:3001/admin/books", newBook);
+    await axios.post("http://localhost:3001/admin/create-book", newBook);
     fetchBooks();
   };
 
@@ -72,7 +61,10 @@ export default function AdminDashboard() {
   };
 
   const addResource = async () => {
-    await axios.post("http://localhost:3001/admin/resources", newResource);
+    await axios.post(
+      "http://localhost:3001/admin/digital-resources",
+      newResource
+    );
     fetchResources();
   };
 
@@ -147,22 +139,35 @@ export default function AdminDashboard() {
                 setNewBook({ ...newBook, category: e.target.value })
               }
             />
-            <input
+            <select
               className="border p-2"
-              placeholder="Location"
               value={newBook.location}
               onChange={(e) =>
                 setNewBook({ ...newBook, location: e.target.value })
               }
-            />
-            <input
+            >
+              <option value="">Select Location</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Kolkata">Kolkata</option>
+            </select>
+            <select
               className="border p-2"
-              placeholder="Copy ID"
-              value={newBook.copyId}
+              value={newBook.status}
               onChange={(e) =>
-                setNewBook({ ...newBook, copyId: e.target.value })
+                setNewBook({
+                  ...newBook,
+                  status: e.target.value as Book["status"],
+                })
               }
-            />
+            >
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+              <option value="borrowed">Borrowed</option>
+              <option value="lost">Lost</option>
+            </select>
+
             <input
               className="border p-2"
               placeholder="Book ID"

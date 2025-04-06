@@ -4,14 +4,17 @@ import "./index.css";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import reportWebVitals from "./reportWebVitals";
-import { Navbar } from "./components/Navbar";
+import { LocationProvider } from "./context/LocationContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <Navbar />
-      <App />
+      <LocationProvider>
+        {" "}
+        {/* ✅ Location context provider */}
+        <App />
+      </LocationProvider>
     </AuthProvider>
   </React.StrictMode>
 );

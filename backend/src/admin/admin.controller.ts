@@ -8,19 +8,20 @@ import {
   Put,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
-import { CreateBookDto, CreateDigitalResourceDto } from "./admin.dto";
+import { CreateBookDto } from "src/books/books.dto";
+import { CreateDigitalResourceDto } from "src/digital-resources/digital-resources.dto";
 
 @Controller("admin")
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Post("books")
+  @Post("create-book")
   createBook(@Body() body: CreateBookDto) {
     return this.adminService.createBook(body);
   }
 
-  @Put("books/:id")
-  updateBook(@Param("id") id: string, @Body() body: Partial<CreateBookDto>) {
+  @Put("update-book/:id")
+  updateBook(@Param("id") id: string, @Body() body: CreateBookDto) {
     return this.adminService.updateBook(id, body);
   }
 

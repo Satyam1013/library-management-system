@@ -6,7 +6,8 @@ import {
   DigitalResource,
   DigitalResourceDocument,
 } from "../digital-resources/digital-resources.schema";
-import { CreateBookDto, CreateDigitalResourceDto } from "./admin.dto";
+import { CreateBookDto } from "src/books/books.dto";
+import { CreateDigitalResourceDto } from "src/digital-resources/digital-resources.dto";
 
 @Injectable()
 export class AdminService {
@@ -18,7 +19,16 @@ export class AdminService {
 
   // BOOKS
   async createBook(data: CreateBookDto) {
-    return this.bookModel.create(data);
+    // Count how many copies exist for this bookId
+    const count = await this.bookModel.countDocuments({ bookId: data.bookId });
+
+    // If count is 0, it's the first copy, so copyId is same as bookId.
+    // Otherwise, append count as a suffix.
+    const copyId = count === 0 ? data.bookId : `${data.bookId}-${count}`;
+
+    // Create the book with the generated copyId.
+    const newBook = await this.bookModel.create({ ...data, copyId });
+    return newBook;
   }
 
   async updateBook(id: string, data: Partial<CreateBookDto>) {

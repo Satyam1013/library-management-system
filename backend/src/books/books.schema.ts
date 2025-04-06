@@ -3,6 +3,13 @@ import { Document } from "mongoose";
 
 export type BookDocument = Book & Document;
 
+export enum AvailabilityStatus {
+  Available = "available",
+  Reserved = "reserved",
+  Borrowed = "borrowed",
+  Lost = "lost",
+}
+
 @Schema()
 export class Book {
   @Prop({ required: true })
@@ -26,8 +33,8 @@ export class Book {
   @Prop({ required: true })
   location: string;
 
-  @Prop({ default: true })
-  available: boolean;
+  @Prop({ enum: AvailabilityStatus, required: true })
+  status: AvailabilityStatus;
 }
-
 export const BookSchema = SchemaFactory.createForClass(Book);
+BookSchema.set("timestamps", true);

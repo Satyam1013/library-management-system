@@ -2,12 +2,13 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Book, BookDocument } from "./books.schema";
+import { CreateBookDto } from "./books.dto";
 
 @Injectable()
 export class BooksService {
   constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
 
-  async create(bookData: Partial<Book>) {
+  async create(bookData: CreateBookDto) {
     const book = new this.bookModel(bookData);
     return book.save();
   }
