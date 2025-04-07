@@ -41,7 +41,6 @@ export default function Books() {
               <p className="font-bold text-lg">{book.title}</p>
               <p className="text-sm">{book.author}</p>
               <p className="text-sm">{book.genre}</p>
-              <p className="text-sm text-gray-500">Location: {book.location}</p>
               <p className="text-sm text-gray-500">Status: {book.status}</p>
             </div>
             {book.status === "available" && (
