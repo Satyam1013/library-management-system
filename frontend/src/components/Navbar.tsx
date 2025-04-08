@@ -1,12 +1,35 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "../context/LocationContext"; // ✅
+import { useLocation } from "../context/LocationContext";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  name?: string;
+  email?: string;
+  // add other fields if needed
+}
 
 export function Navbar() {
   const navigate = useNavigate();
   const { location, setLocation } = useLocation();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        setUserName(decoded.name || decoded.email || "User");
+      } catch (err) {
+        console.error("Invalid token");
+        setUserName(null);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setUserName(null);
     navigate("/login");
   };
 
@@ -24,7 +47,6 @@ export function Navbar() {
           <option value="Delhi">Delhi</option>
           <option value="Mumbai">Mumbai</option>
           <option value="Bangalore">Bangalore</option>
-          <option value="Kolkata">Kolkata</option>
         </select>
 
         <div className="flex gap-2 items-center">
@@ -34,12 +56,7 @@ export function Navbar() {
           >
             Home
           </a>
-          <a
-            href="/dashboard"
-            className="text-white px-4 py-2 hover:bg-gray-700 rounded"
-          >
-            Dashboard
-          </a>
+
           <a
             href="/books"
             className="text-white px-4 py-2 hover:bg-gray-700 rounded"
@@ -53,17 +70,30 @@ export function Navbar() {
             Digital Resources
           </a>
           <a
-            href="/transactions"
+            href="/profile"
             className="text-white px-4 py-2 hover:bg-gray-700 rounded"
           >
-            Transactions
+            Profile
           </a>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
+
+          {userName ? (
+            <>
+              <span className="text-white font-medium">Hi, {userName}</span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
     </nav>

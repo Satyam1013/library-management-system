@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export type BookDocument = Book & Document;
 
@@ -35,6 +35,18 @@ export class Book {
 
   @Prop({ enum: AvailabilityStatus, required: true })
   status: AvailabilityStatus;
+
+  @Prop({ type: Types.ObjectId, ref: "User", default: null })
+  borrowedBy: Types.ObjectId | null;
+
+  @Prop({ type: [Types.ObjectId], ref: "User", default: [] })
+  reservations: Types.ObjectId[];
+
+  @Prop({ type: Date })
+  startTime: Date;
+
+  @Prop({ type: Date })
+  endTime: Date;
 }
+
 export const BookSchema = SchemaFactory.createForClass(Book);
-BookSchema.set("timestamps", true);

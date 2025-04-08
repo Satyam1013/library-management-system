@@ -82,7 +82,6 @@ export default function AdminDashboard() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
           className={`px-4 py-2 rounded ${
@@ -150,24 +149,7 @@ export default function AdminDashboard() {
               <option value="Delhi">Delhi</option>
               <option value="Mumbai">Mumbai</option>
               <option value="Bangalore">Bangalore</option>
-              <option value="Kolkata">Kolkata</option>
             </select>
-            <select
-              className="border p-2"
-              value={newBook.status}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  status: e.target.value as Book["status"],
-                })
-              }
-            >
-              <option value="available">Available</option>
-              <option value="reserved">Reserved</option>
-              <option value="borrowed">Borrowed</option>
-              <option value="lost">Lost</option>
-            </select>
-
             <input
               className="border p-2"
               placeholder="Book ID"

@@ -23,25 +23,29 @@ export class AuthService {
   ) {}
 
   async signup(createUserDto: CreateUserDto) {
-    const existingUser = await this.userModel.findOne({
-      email: createUserDto.email,
-    });
-    if (existingUser) {
-      throw new ConflictException("Email already registered");
+    try {
+      const existingUser = await this.userModel.findOne({
+        email: createUserDto.email,
+      });
+      if (existingUser) {
+        throw new ConflictException("Email already registered");
+      }
+
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+      const createdUser = new this.userModel({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
+      const user = await createdUser.save();
+      const payload: JwtUserPayload = {
+        _id: user._id.toString(),
+        role: user.role,
+      };
+      return this.login(payload);
+    } catch (error) {
+      console.log("Error:", error);
     }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const createdUser = new this.userModel({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-
-    const user = await createdUser.save();
-    const payload: JwtUserPayload = {
-      _id: user._id.toString(),
-      role: user.role,
-    };
-    return this.login(payload);
   }
 
   async validateUser(email: string, password: string): Promise<JwtUserPayload> {
@@ -56,9 +60,13 @@ export class AuthService {
   }
 
   async login(user: JwtUserPayload) {
-    const payload = { sub: user._id, role: user.role };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
+    try {
+      const payload = { sub: user._id, role: user.role };
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } catch (error) {
+      console.log("Error:", error);
+    }
   }
 }

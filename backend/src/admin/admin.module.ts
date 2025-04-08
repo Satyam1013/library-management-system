@@ -6,10 +6,6 @@ import { Admin, AdminSchema } from "./admin.schema";
 import { User, UserSchema } from "../users/users.schema";
 import { Book, BookSchema } from "../books/books.schema";
 import {
-  Transaction,
-  TransactionSchema,
-} from "../transactions/transactions.schema";
-import {
   DigitalResource,
   DigitalResourceSchema,
 } from "src/digital-resources/digital-resources.schema";
@@ -21,7 +17,6 @@ import {
       { name: User.name, schema: UserSchema },
       { name: Book.name, schema: BookSchema },
       { name: DigitalResource.name, schema: DigitalResourceSchema },
-      { name: Transaction.name, schema: TransactionSchema },
     ]),
   ],
   controllers: [AdminController],

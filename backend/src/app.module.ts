@@ -5,7 +5,6 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { BooksModule } from "./books/books.module";
 import { DigitalResourcesModule } from "./digital-resources/digital-resources.module";
-import { TransactionsModule } from "./transactions/transactions.module";
 import { FinesModule } from "./fines/fines.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { ReservationsModule } from "./reservations/reservations.module";
@@ -28,7 +27,6 @@ import { AdminModule } from "./admin/admin.module";
     UsersModule,
     BooksModule,
     DigitalResourcesModule,
-    TransactionsModule,
     FinesModule,
     PaymentsModule,
     ReservationsModule,

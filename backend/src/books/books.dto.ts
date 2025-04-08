@@ -1,5 +1,6 @@
-import { IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsString } from "class-validator";
 import { AvailabilityStatus } from "./books.schema";
+import { Type } from "class-transformer";
 
 export class CreateBookDto {
   @IsString()
@@ -28,4 +29,14 @@ export class CreateBookDto {
 
   @IsEnum(AvailabilityStatus)
   status: AvailabilityStatus;
+}
+
+export class BorrowBookDto {
+  @IsDate()
+  @Type(() => Date)
+  startTime: Date;
+
+  @IsDate()
+  @Type(() => Date)
+  endTime: Date;
 }

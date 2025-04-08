@@ -5,11 +5,6 @@ import { FinesService } from "./fines.service";
 export class FinesController {
   constructor(private readonly finesService: FinesService) {}
 
-  @Post("calculate/:transactionId")
-  calculate(@Param("transactionId") id: string) {
-    return this.finesService.calculateFine(id);
-  }
-
   @Get("user/:userId")
   getUserFines(@Param("userId") userId: string) {
     return this.finesService.findUserFines(userId);
