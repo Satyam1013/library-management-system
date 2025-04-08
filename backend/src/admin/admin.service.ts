@@ -19,17 +19,23 @@ export class AdminService {
 
   // BOOKS
   async createBook(data: CreateBookDto) {
-    const count = await this.bookModel.countDocuments({ bookId: data.bookId });
+    try {
+      const count = await this.bookModel.countDocuments({
+        bookId: data.bookId,
+      });
 
-    const copyId = count === 0 ? data.bookId : `${data.bookId}-${count}`;
+      const copyId = count === 0 ? data.bookId : `${data.bookId}-${count}`;
 
-    const newBook = await this.bookModel.create({
-      ...data,
-      copyId,
-      status: "available",
-    });
+      const newBook = await this.bookModel.create({
+        ...data,
+        copyId,
+        status: "available",
+      });
 
-    return newBook;
+      return newBook;
+    } catch (error) {
+      console.error("Error creating book:", error);
+    }
   }
 
   async updateBook(id: string, data: Partial<CreateBookDto>) {

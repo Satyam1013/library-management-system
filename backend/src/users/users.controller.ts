@@ -1,6 +1,15 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+} from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
+import { AuthenticatedRequest } from "src/common/common.types";
 
 @Controller("users")
 export class UsersController {
@@ -23,6 +32,13 @@ export class UsersController {
   @Get()
   async getAll() {
     return this.usersService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("/profile")
+  async getUserBooks(@Req() req: AuthenticatedRequest) {
+    const userId = req.user._id;
+    return this.usersService.getUserBooks(userId);
   }
 
   @UseGuards(JwtAuthGuard)

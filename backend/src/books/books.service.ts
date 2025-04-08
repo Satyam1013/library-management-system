@@ -69,7 +69,11 @@ export class BooksService {
         book.startTime = start;
         book.endTime = end;
         await book.save();
-        return { message: "Book borrowed successfully" };
+
+        return {
+          message: "Book borrowed successfully",
+          updatedBook: book,
+        };
       }
 
       if (
@@ -86,7 +90,10 @@ export class BooksService {
           await book.save();
         }
 
-        return { message: "Book reserved. You are in the queue." };
+        return {
+          message: "Book reserved. You are in the queue.",
+          updatedBook: book,
+        };
       }
 
       throw new BadRequestException(

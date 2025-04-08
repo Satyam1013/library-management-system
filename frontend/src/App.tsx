@@ -13,6 +13,7 @@ import { jwtDecode } from "jwt-decode";
 import { JSX } from "react";
 import MainLayout from "./components/MainLayout";
 import DigitalResources from "./pages/Digital-Resources";
+import Profile from "./pages/Profile";
 
 interface DecodedToken {
   role: string;
@@ -86,6 +87,14 @@ export default function App() {
           element={
             <MainLayout>
               <DigitalResources />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <MainLayout>
+              <Profile />
             </MainLayout>
           }
         />

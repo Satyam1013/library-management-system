@@ -4,13 +4,17 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { User, UserDocument } from "./users.schema";
 import * as bcrypt from "bcrypt";
+import { Book } from "src/books/books.schema";
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Book.name) private readonly bookModel: Model<Book>,
+  ) {}
 
   async register(data: {
     name: string;
@@ -40,5 +44,16 @@ export class UsersService {
 
   async findAll() {
     return this.userModel.find().select("-password");
+  }
+
+  async getUserBooks(userId: Types.ObjectId) {
+    const borrowedBooks = await this.bookModel.find({ borrowedBy: userId });
+
+    const reservedBooks = await this.bookModel.find({
+      reservations: userId,
+      borrowedBy: { $ne: userId },
+    });
+
+    return { borrowedBooks, reservedBooks };
   }
 }
