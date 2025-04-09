@@ -62,8 +62,12 @@ export class BooksController {
 
   @Patch(":id/renew")
   @UseGuards(JwtAuthGuard)
-  renewBook(@Param("id") id: string, @Req() req: AuthenticatedRequest) {
+  renewBook(
+    @Param("id") id: string,
+    @Body() { startTime, endTime }: BorrowBookDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     const userId = req.user._id;
-    return this.booksService.renewBook(id, userId);
+    return this.booksService.renewBook(id, userId, startTime, endTime);
   }
 }

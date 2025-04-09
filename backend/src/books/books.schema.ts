@@ -54,6 +54,9 @@ export class Book {
   @Prop({ type: Date, default: null })
   startTime: Date;
 
+  @Prop({ type: Boolean, default: false })
+  isRenewed: boolean;
+
   @Prop({ type: Date, default: null })
   endTime: Date;
 }

@@ -24,6 +24,8 @@ export function Section({
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [prevEndTime, setPrevEndTime] = useState<Date | null>(null);
+  const [showRenewPaymentModal, setShowRenewPaymentModal] = useState(false);
+  const [renewErrorMessage, setRenewErrorMessage] = useState("");
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [lostBookId, setLostBookId] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function Section({
     setOpenModal(true);
   };
 
-  const handleRenewSubmit = async () => {
+  const handleRenewSubmit = () => {
     if (!startDate || !endDate || !renewBookId) return;
 
     const maxDiff = 28 * 24 * 60 * 60 * 1000;
@@ -58,6 +60,13 @@ export function Section({
       return;
     }
 
+    setShowRenewPaymentModal(true); // open payment modal
+    setOpenModal(false); // close date modal
+  };
+
+  const handleRenewPaymentConfirm = async () => {
+    if (!startDate || !endDate || !renewBookId) return;
+
     try {
       await axios.patch(
         `http://localhost:3001/books/${renewBookId}/renew`,
@@ -67,11 +76,15 @@ export function Section({
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       alert("Book renewed successfully!");
-      setOpenModal(false);
+      setShowRenewPaymentModal(false);
+      setRenewBookId(null);
+      setRenewErrorMessage("");
       window.location.reload();
-    } catch (err) {
-      console.error("Failed to renew book:", err);
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || "Something went wrong";
+      setRenewErrorMessage(errorMsg);
     }
   };
 
@@ -143,12 +156,16 @@ export function Section({
                     <button
                       onClick={() => handleRenewClick(book)}
                       className={`${
-                        book.reservations?.length > 0 || book.status === "lost"
+                        book.reservations?.length > 0 ||
+                        book.status === "lost" ||
+                        book.isRenewed
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-blue-500 hover:bg-blue-600"
                       } text-white px-3 py-1 rounded`}
                       disabled={
-                        book.reservations?.length > 0 || book.status === "lost"
+                        book.reservations?.length > 0 ||
+                        book.status === "lost" ||
+                        book.isRenewed
                       }
                     >
                       Renew
@@ -237,6 +254,41 @@ export function Section({
               <button
                 onClick={handlePaymentConfirm}
                 className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Pay & Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showRenewPaymentModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
+            <h3 className="text-lg font-bold mb-4">Confirm Renewal Payment</h3>
+            <p className="mb-4">
+              You're about to renew this book. Proceed with the payment?
+            </p>
+
+            {renewErrorMessage && (
+              <div className="text-red-600 text-sm mb-4">
+                {renewErrorMessage}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowRenewPaymentModal(false);
+                  setRenewBookId(null);
+                  setRenewErrorMessage("");
+                }}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRenewPaymentConfirm}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
               >
                 Pay & Confirm
               </button>

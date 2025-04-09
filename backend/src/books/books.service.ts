@@ -146,35 +146,64 @@ export class BooksService {
     return { message: "Book marked as lost" };
   }
 
-  async renewBook(id: string, userId: Types.ObjectId) {
-    const book = await this.bookModel.findById(id);
+  async renewBook(
+    id: string,
+    userId: Types.ObjectId,
+    startTime: Date,
+    endTime: Date,
+  ) {
+    try {
+      const book = await this.bookModel.findById(id);
 
-    if (!book) {
-      throw new NotFoundException("Book not found");
+      if (!book) {
+        throw new NotFoundException("Book not found");
+      }
+
+      const now = new Date();
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+
+      if (start >= end) {
+        throw new BadRequestException("End time must be after start time");
+      }
+
+      if (start < now) {
+        throw new BadRequestException("Start time must be in the future");
+      }
+
+      if (book.endTime && start <= book.endTime) {
+        throw new BadRequestException(
+          "Start date must be after current end date.",
+        );
+      }
+
+      if (
+        !book.borrowedBy ||
+        book.borrowedBy.toString() !== userId.toString()
+      ) {
+        throw new ForbiddenException("You did not borrow this book");
+      }
+
+      if (
+        book.reservedBy &&
+        book.reservedBy.toString() !== userId.toString() &&
+        book.reserveStartTime &&
+        book.reserveEndTime &&
+        new Date() <= book.reserveEndTime
+      ) {
+        throw new BadRequestException("Book is reserved and cannot be renewed");
+      }
+
+      book.startTime = start;
+      book.endTime = end;
+      book.isRenewed = true;
+
+      await book.save();
+
+      return { message: "Book renewed successfully" };
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new BadRequestException(error.message || "Something went wrong");
     }
-
-    // Check ownership
-    if (!book.borrowedBy || book.borrowedBy.toString() !== userId.toString()) {
-      throw new ForbiddenException("You did not borrow this book");
-    }
-
-    // Check if the book is reserved by someone else
-    if (
-      book.reservedBy &&
-      book.reservedBy.toString() !== userId.toString() && // Only allow renewal if reserved by the same user or not reserved
-      book.reserveStartTime &&
-      book.reserveEndTime &&
-      new Date() <= book.reserveEndTime // If reservation is still active
-    ) {
-      throw new BadRequestException("Book is reserved and cannot be renewed");
-    }
-
-    const now = new Date();
-    book.startTime = now;
-    book.endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // Renew for 7 days
-
-    await book.save();
-
-    return { message: "Book renewed successfully" };
   }
 }
