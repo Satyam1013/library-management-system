@@ -46,12 +46,15 @@ export class UsersService {
     return this.userModel.find().select("-password");
   }
 
-  async getUserBooks(userId: Types.ObjectId) {
-    const borrowedBooks = await this.bookModel.find({ borrowedBy: userId });
+  async getUserBooks(userId: string | Types.ObjectId) {
+    const objectUserId = new Types.ObjectId(userId);
+
+    const borrowedBooks = await this.bookModel.find({
+      borrowedBy: objectUserId,
+    });
 
     const reservedBooks = await this.bookModel.find({
-      reservations: userId,
-      borrowedBy: { $ne: userId },
+      reservedBy: objectUserId,
     });
 
     return { borrowedBooks, reservedBooks };

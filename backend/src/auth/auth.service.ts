@@ -13,6 +13,8 @@ import { CreateUserDto } from "./create-user.dto";
 interface JwtUserPayload {
   _id: string;
   role: string;
+  name: string;
+  email: string;
 }
 
 @Injectable()
@@ -41,6 +43,8 @@ export class AuthService {
       const payload: JwtUserPayload = {
         _id: user._id.toString(),
         role: user.role,
+        name: user.name,
+        email: user.email,
       };
       return this.login(payload);
     } catch (error) {
@@ -54,6 +58,8 @@ export class AuthService {
       return {
         _id: user._id.toString(),
         role: user.role,
+        name: user.name,
+        email: user.email,
       };
     }
     throw new UnauthorizedException("Invalid credentials");
@@ -61,7 +67,12 @@ export class AuthService {
 
   async login(user: JwtUserPayload) {
     try {
-      const payload = { sub: user._id, role: user.role };
+      const payload = {
+        sub: user._id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      };
       return {
         access_token: await this.jwtService.signAsync(payload),
       };

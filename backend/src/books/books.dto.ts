@@ -1,4 +1,10 @@
-import { IsDate, IsEnum, IsNotEmpty, IsString } from "class-validator";
+import {
+  IsDate,
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from "class-validator";
 import { AvailabilityStatus } from "./books.schema";
 import { Type } from "class-transformer";
 
@@ -39,4 +45,12 @@ export class BorrowBookDto {
   @IsDate()
   @Type(() => Date)
   endTime: Date;
+}
+
+export class ReserveBookDto {
+  @IsDateString()
+  reserveStartTime: Date;
+
+  @IsDateString()
+  reserveEndTime: Date;
 }

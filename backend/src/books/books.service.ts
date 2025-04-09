@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -47,60 +48,133 @@ export class BooksService {
     startTime: Date,
     endTime: Date,
   ) {
+    const book = await this.bookModel.findById(bookId);
+    if (!book) throw new NotFoundException("Book not found");
+
+    const now = new Date();
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    if (start >= end)
+      throw new BadRequestException("End time must be after start time");
+    if (start < now)
+      throw new BadRequestException("Start time must be in the future");
+
+    if (book.status !== AvailabilityStatus.Available) {
+      throw new BadRequestException(
+        "Book is not currently available to borrow",
+      );
+    }
+
+    book.status = AvailabilityStatus.Borrowed;
+    book.borrowedBy = new Types.ObjectId(userId);
+    book.startTime = start;
+    book.endTime = end;
+    await book.save();
+
+    return {
+      message: "Book borrowed successfully",
+      updatedBook: book,
+    };
+  }
+
+  async reserveBook(
+    bookId: string,
+    userId: Types.ObjectId,
+    reserveStartTime: string | Date,
+    reserveEndTime: string | Date,
+  ) {
     try {
+      const start = new Date(reserveStartTime);
+      const end = new Date(reserveEndTime);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new BadRequestException("Invalid date format");
+      }
+
       const book = await this.bookModel.findById(bookId);
       if (!book) throw new NotFoundException("Book not found");
 
-      const now = new Date();
-      const start = new Date(startTime);
-      const end = new Date(endTime);
-
-      if (start >= end) {
-        throw new BadRequestException("End time must be after start time");
+      const diffInDays = Math.ceil(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      if (diffInDays > 28) {
+        throw new BadRequestException("Reservation cannot exceed 28 days");
       }
 
-      if (start < now) {
-        throw new BadRequestException("Start time must be in the future");
-      }
-
-      if (book.status === AvailabilityStatus.Available) {
-        book.status = AvailabilityStatus.Borrowed;
-        book.borrowedBy = userId;
-        book.startTime = start;
-        book.endTime = end;
-        await book.save();
-
-        return {
-          message: "Book borrowed successfully",
-          updatedBook: book,
-        };
+      if (book.endTime && start <= book.endTime) {
+        throw new BadRequestException(
+          "Reservation must start after current borrow period",
+        );
       }
 
       if (
-        book.status === AvailabilityStatus.Borrowed ||
-        book.status === AvailabilityStatus.Reserved
+        book.reservedBy &&
+        book.reserveEndTime &&
+        start <= book.reserveEndTime
       ) {
-        const isAlreadyReserved = book.reservations.some((id) =>
-          id.equals(userId),
+        throw new BadRequestException(
+          "Book is already reserved during the selected time",
         );
-
-        if (!isAlreadyReserved) {
-          book.reservations.push(userId);
-          book.status = AvailabilityStatus.Reserved;
-          await book.save();
-        }
-
-        return {
-          message: "Book reserved. You are in the queue.",
-          updatedBook: book,
-        };
       }
 
-      throw new BadRequestException(
-        "Book is not available to borrow or reserve.",
-      );
-    } catch (err) {
-      console.log("error:", err);
+      book.reservedBy = new Types.ObjectId(userId);
+      book.reserveStartTime = start;
+      book.reserveEndTime = end;
+      book.status = AvailabilityStatus.Reserved;
+
+      await book.save();
+
+      return {
+        message: "Book reserved successfully",
+        updatedBook: book,
+      };
+    } catch (error) {
+      throw new BadRequestException(error);
     }
+  }
+
+  async markAsLost(id: string) {
+    const book = await this.bookModel.findById(id);
+    if (!book) {
+      throw new NotFoundException("Book not found");
+    }
+
+    book.status = AvailabilityStatus.Lost;
+    await book.save();
+
+    return { message: "Book marked as lost" };
+  }
+
+  async renewBook(id: string, userId: Types.ObjectId) {
+    const book = await this.bookModel.findById(id);
+
+    if (!book) {
+      throw new NotFoundException("Book not found");
+    }
+
+    // Check ownership
+    if (!book.borrowedBy || book.borrowedBy.toString() !== userId.toString()) {
+      throw new ForbiddenException("You did not borrow this book");
+    }
+
+    // Check if the book is reserved by someone else
+    if (
+      book.reservedBy &&
+      book.reservedBy.toString() !== userId.toString() && // Only allow renewal if reserved by the same user or not reserved
+      book.reserveStartTime &&
+      book.reserveEndTime &&
+      new Date() <= book.reserveEndTime // If reservation is still active
+    ) {
+      throw new BadRequestException("Book is reserved and cannot be renewed");
+    }
+
+    const now = new Date();
+    book.startTime = now;
+    book.endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // Renew for 7 days
+
+    await book.save();
+
+    return { message: "Book renewed successfully" };
   }
 }

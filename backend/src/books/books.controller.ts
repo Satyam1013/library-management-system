@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -10,7 +11,7 @@ import {
 import { BooksService } from "./books.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { AuthenticatedRequest } from "src/common/common.types";
-import { BorrowBookDto } from "./books.dto";
+import { BorrowBookDto, ReserveBookDto } from "./books.dto";
 
 @Controller("books")
 export class BooksController {
@@ -35,5 +36,34 @@ export class BooksController {
   ) {
     const userId = req.user._id;
     return this.booksService.borrowBook(id, userId, startTime, endTime);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(":id/reserve")
+  async reserveBook(
+    @Param("id") id: string,
+    @Body() { reserveStartTime, reserveEndTime }: ReserveBookDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user._id;
+    return this.booksService.reserveBook(
+      id,
+      userId,
+      reserveStartTime,
+      reserveEndTime,
+    );
+  }
+
+  @Patch(":id/lost")
+  @UseGuards(JwtAuthGuard)
+  markBookAsLost(@Param("id") id: string) {
+    return this.booksService.markAsLost(id);
+  }
+
+  @Patch(":id/renew")
+  @UseGuards(JwtAuthGuard)
+  renewBook(@Param("id") id: string, @Req() req: AuthenticatedRequest) {
+    const userId = req.user._id;
+    return this.booksService.renewBook(id, userId);
   }
 }

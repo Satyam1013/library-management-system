@@ -6,20 +6,21 @@ import { jwtDecode } from "jwt-decode";
 interface DecodedToken {
   name?: string;
   email?: string;
-  // add other fields if needed
 }
 
 export function Navbar() {
   const navigate = useNavigate();
   const { location, setLocation } = useLocation();
   const [userName, setUserName] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const decoded = jwtDecode<DecodedToken>(token);
-        setUserName(decoded.name || decoded.email || "User");
+        console.log("✨ ~ decoded:", decoded);
+        setUserName(decoded.name || "User");
       } catch (err) {
         console.error("Invalid token");
         setUserName(null);
@@ -31,6 +32,10 @@ export function Navbar() {
     localStorage.removeItem("token");
     setUserName(null);
     navigate("/login");
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   return (
@@ -49,7 +54,7 @@ export function Navbar() {
           <option value="Bangalore">Bangalore</option>
         </select>
 
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center relative">
           <a
             href="/"
             className="text-white px-4 py-2 hover:bg-gray-700 rounded"
@@ -63,30 +68,46 @@ export function Navbar() {
           >
             Books
           </a>
+
           <a
             href="/resources"
             className="text-white px-4 py-2 hover:bg-gray-700 rounded"
           >
             Digital Resources
           </a>
-          <a
-            href="/profile"
-            className="text-white px-4 py-2 hover:bg-gray-700 rounded"
-          >
-            Profile
-          </a>
 
-          {userName ? (
-            <>
-              <span className="text-white font-medium">Hi, {userName}</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="text-white px-4 py-2 hover:bg-gray-700 rounded"
+            >
+              Profile
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg z-10">
+                <a
+                  href="/profile"
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                >
+                  My Profile
+                </a>
+                {userName && (
+                  <span className="block px-4 py-2 text-gray-600">
+                    Hi, {userName}
+                  </span>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+
+          {!userName && (
             <button
               onClick={() => navigate("/login")}
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"

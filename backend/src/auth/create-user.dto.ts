@@ -2,7 +2,7 @@ import { IsEmail, IsEnum, IsNotEmpty, MinLength } from "class-validator";
 
 export enum UserRole {
   ADMIN = "admin",
-  USER = "user",
+  STUDENT = "student",
   LIBRARIAN = "librarian",
 }
 

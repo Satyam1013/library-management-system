@@ -5,8 +5,8 @@ export type BookDocument = Book & Document;
 
 export enum AvailabilityStatus {
   Available = "available",
-  Reserved = "reserved",
   Borrowed = "borrowed",
+  Reserved = "reserved",
   Lost = "lost",
 }
 
@@ -37,15 +37,24 @@ export class Book {
   status: AvailabilityStatus;
 
   @Prop({ type: Types.ObjectId, ref: "User", default: null })
-  borrowedBy: Types.ObjectId | null;
+  borrowedBy: Types.ObjectId;
 
-  @Prop({ type: [Types.ObjectId], ref: "User", default: [] })
-  reservations: Types.ObjectId[];
+  // Changed from an array to a single reservedBy
+  @Prop({ type: Types.ObjectId, ref: "User", default: null })
+  reservedBy: Types.ObjectId;
 
-  @Prop({ type: Date })
+  // New reservation time fields
+  @Prop({ type: Date, default: null })
+  reserveStartTime: Date;
+
+  @Prop({ type: Date, default: null })
+  reserveEndTime: Date;
+
+  // Borrowed time fields
+  @Prop({ type: Date, default: null })
   startTime: Date;
 
-  @Prop({ type: Date })
+  @Prop({ type: Date, default: null })
   endTime: Date;
 }
 
