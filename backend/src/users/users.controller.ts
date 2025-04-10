@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Param,
-  UseGuards,
-  Req,
-} from "@nestjs/common";
+import { Controller, Get, Param, UseGuards, Req } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { AuthenticatedRequest } from "src/common/common.types";
@@ -14,19 +6,6 @@ import { AuthenticatedRequest } from "src/common/common.types";
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post("register")
-  async register(
-    @Body()
-    body: {
-      name: string;
-      email: string;
-      password: string;
-      role: string;
-    },
-  ) {
-    return this.usersService.register(body);
-  }
 
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -39,6 +18,11 @@ export class UsersController {
   async getUserBooks(@Req() req: AuthenticatedRequest) {
     const userId = req.user._id;
     return this.usersService.getUserBooks(userId);
+  }
+
+  @Get("dashboard")
+  async getStats() {
+    return this.usersService.getStats();
   }
 
   @UseGuards(JwtAuthGuard)

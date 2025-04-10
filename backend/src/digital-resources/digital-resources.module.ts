@@ -18,5 +18,6 @@ import {
   ],
   controllers: [DigitalResourcesController],
   providers: [DigitalResourcesService],
+  exports: [MongooseModule],
 })
 export class DigitalResourcesModule {}

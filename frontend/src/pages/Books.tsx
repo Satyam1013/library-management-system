@@ -156,97 +156,99 @@ export default function Books() {
                   )}
               </div>
 
-              {(book.status === "available" || book.status === "borrowed") && (
-                <>
-                  <button
-                    onClick={() =>
-                      setOpenPickerFor((prev) =>
-                        prev === book._id ? null : book._id
-                      )
-                    }
-                    className={`mt-4 ${
-                      book.status === "available"
-                        ? "bg-blue-500 hover:bg-blue-600"
-                        : "bg-yellow-500 hover:bg-yellow-600"
-                    } text-white px-4 py-2 rounded`}
-                  >
-                    {openPickerFor === book._id
-                      ? "Cancel"
-                      : book.status === "available"
-                      ? "Book Now"
-                      : "Reserve"}
-                  </button>
+              {(book.status === "available" || book.status === "borrowed") &&
+                book.borrowedBy?.toString() !== userId && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setOpenPickerFor((prev) =>
+                          prev === book._id ? null : book._id
+                        )
+                      }
+                      className={`mt-4 ${
+                        book.status === "available"
+                          ? "bg-blue-500 hover:bg-blue-600"
+                          : "bg-yellow-500 hover:bg-yellow-600"
+                      } text-white px-4 py-2 rounded`}
+                    >
+                      {openPickerFor === book._id
+                        ? "Cancel"
+                        : book.status === "available"
+                        ? "Book Now"
+                        : "Reserve"}
+                    </button>
 
-                  {showPicker && (
-                    <div className="mt-4 space-y-2">
-                      <div className="text-sm text-gray-700 mb-2">
-                        {startDate && (
-                          <p>
-                            <strong>Start:</strong>{" "}
-                            {startDate.toLocaleDateString()}
-                          </p>
-                        )}
-                        {endDate && (
-                          <p>
-                            <strong>End:</strong> {endDate.toLocaleDateString()}
-                          </p>
-                        )}
+                    {showPicker && (
+                      <div className="mt-4 space-y-2">
+                        <div className="text-sm text-gray-700 mb-2">
+                          {startDate && (
+                            <p>
+                              <strong>Start:</strong>{" "}
+                              {startDate.toLocaleDateString()}
+                            </p>
+                          )}
+                          {endDate && (
+                            <p>
+                              <strong>End:</strong>{" "}
+                              {endDate.toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+
+                        <DatePicker
+                          selected={startDate}
+                          onChange={(date) =>
+                            setStartDates((prev) => ({
+                              ...prev,
+                              [book._id]: date,
+                            }))
+                          }
+                          selectsStart
+                          startDate={startDate}
+                          endDate={endDate}
+                          placeholderText="Start Date"
+                          dateFormat="yyyy-MM-dd"
+                          className="border px-2 py-1 rounded w-full"
+                          minDate={
+                            book.status === "borrowed" && book.endTime
+                              ? new Date(
+                                  new Date(book.endTime).getTime() +
+                                    24 * 60 * 60 * 1000
+                                ) // next day
+                              : new Date()
+                          }
+                        />
+
+                        <DatePicker
+                          selected={endDate}
+                          onChange={(date) =>
+                            setEndDates((prev) => ({
+                              ...prev,
+                              [book._id]: date,
+                            }))
+                          }
+                          selectsEnd
+                          startDate={startDate}
+                          endDate={endDate}
+                          placeholderText="End Date"
+                          dateFormat="yyyy-MM-dd"
+                          className="border px-2 py-1 rounded w-full"
+                          minDate={startDate || new Date()}
+                        />
+
+                        <button
+                          onClick={() => handleBookSubmit(book)}
+                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
+                        >
+                          Confirm{" "}
+                          {book.status === "available"
+                            ? "Booking"
+                            : "Reservation"}
+                        </button>
                       </div>
-
-                      <DatePicker
-                        selected={startDate}
-                        onChange={(date) =>
-                          setStartDates((prev) => ({
-                            ...prev,
-                            [book._id]: date,
-                          }))
-                        }
-                        selectsStart
-                        startDate={startDate}
-                        endDate={endDate}
-                        placeholderText="Start Date"
-                        dateFormat="yyyy-MM-dd"
-                        className="border px-2 py-1 rounded w-full"
-                        minDate={
-                          book.status === "borrowed" && book.endTime
-                            ? new Date(
-                                new Date(book.endTime).getTime() +
-                                  24 * 60 * 60 * 1000
-                              ) // next day
-                            : new Date()
-                        }
-                      />
-
-                      <DatePicker
-                        selected={endDate}
-                        onChange={(date) =>
-                          setEndDates((prev) => ({
-                            ...prev,
-                            [book._id]: date,
-                          }))
-                        }
-                        selectsEnd
-                        startDate={startDate}
-                        endDate={endDate}
-                        placeholderText="End Date"
-                        dateFormat="yyyy-MM-dd"
-                        className="border px-2 py-1 rounded w-full"
-                        minDate={startDate || new Date()}
-                      />
-
-                      <button
-                        onClick={() => handleBookSubmit(book)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
-                      >
-                        Confirm{" "}
-                        {book.status === "available"
-                          ? "Booking"
-                          : "Reservation"}
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
+                    )}
+                  </>
+                )}
 
               {book.status === "borrowed" &&
                 book.borrowedBy?.toString() === userId && (
