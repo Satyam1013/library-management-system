@@ -3,19 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 type PaymentMethod = "card" | "upi" | "netbanking";
-type PaymentType = "available" | "borrowed" | "reserved" | "lost";
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: PaymentType; // ✅ Add this line
+  onSuccess?: () => void;
 }
 
-export default function PaymentModal({
-  isOpen,
-  onClose,
-  type,
-}: PaymentModalProps) {
+export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const navigate = useNavigate();
 
@@ -62,6 +57,7 @@ export default function PaymentModal({
     toast.success("Payment Successful!");
     setErrors([]);
     onClose();
+    onSuccess?.();
     navigate("/profile");
   };
 

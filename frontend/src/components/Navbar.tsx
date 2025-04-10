@@ -75,7 +75,7 @@ export function Navbar() {
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow z-50">
                 <a
                   href="/profile"
                   className="block px-4 py-2 hover:bg-gray-100"

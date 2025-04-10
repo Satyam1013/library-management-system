@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsDate, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateDigitalResourceDto {
   @IsNotEmpty()
@@ -24,4 +25,14 @@ export class CreateDigitalResourceDto {
   @IsNotEmpty()
   @IsNumber()
   cost: number;
+}
+
+export class eBookDto {
+  @IsDate()
+  @Type(() => Date)
+  startTime: Date;
+
+  @IsDate()
+  @Type(() => Date)
+  endTime: Date;
 }

@@ -6,6 +6,7 @@ export function Section({
   title,
   color,
   books,
+  image,
   type,
   disabledLost = [],
   setBooks,
@@ -13,8 +14,9 @@ export function Section({
   title: string;
   color: string;
   books: any[];
-  type: "borrowed" | "reserved";
+  type: "borrowed" | "reserved" | "ebook";
   disabledLost?: string[];
+  image?: string;
   setBooks?: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
   const token = localStorage.getItem("token");
@@ -26,6 +28,7 @@ export function Section({
   const [prevEndTime, setPrevEndTime] = useState<Date | null>(null);
   const [showRenewPaymentModal, setShowRenewPaymentModal] = useState(false);
   const [renewErrorMessage, setRenewErrorMessage] = useState("");
+  const [showPdfModal, setShowPdfModal] = useState(false);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [lostBookId, setLostBookId] = useState<string | null>(null);
@@ -127,6 +130,17 @@ export function Section({
               key={book._id}
               className="border p-4 rounded shadow hover:shadow-lg transition"
             >
+              <img
+                src={image}
+                alt="Book"
+                className="w-full h-32 object-cover rounded mb-2 cursor-pointer"
+                onClick={() => {
+                  if (type === "ebook") {
+                    setShowPdfModal(true);
+                  }
+                }}
+              />
+
               <p className="font-bold text-lg mb-1">{book.title}</p>
               <p className="text-sm text-gray-600 mb-1">by {book.author}</p>
               <p className="text-sm mb-1">Category: {book.category}</p>
@@ -293,6 +307,26 @@ export function Section({
                 Pay & Confirm
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showPdfModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-4 rounded shadow-md max-w-4xl w-full h-[80%] flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-bold">E-Book Preview</h3>
+              <button
+                onClick={() => setShowPdfModal(false)}
+                className="text-red-600 font-semibold"
+              >
+                Close
+              </button>
+            </div>
+            <iframe
+              src="/sample.pdf"
+              className="flex-1 w-full border rounded"
+              title="PDF Preview"
+            ></iframe>
           </div>
         </div>
       )}

@@ -38,7 +38,15 @@ export class UsersService {
       reservedBy: objectUserId,
     });
 
-    return { borrowedBooks, reservedBooks };
+    const borrowedEBooks = await this.digitalResourceModel.find({
+      borrowedBy: {
+        $elemMatch: {
+          user: objectUserId,
+        },
+      },
+    });
+
+    return { borrowedBooks, reservedBooks, borrowedEBooks };
   }
 
   async getStats() {

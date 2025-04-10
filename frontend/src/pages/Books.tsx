@@ -119,154 +119,162 @@ export default function Books() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl mb-4 font-semibold">
-        {location ? `Books in ${location}` : "All Books"}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredBooks.map((book: any) => {
-          const startDate = startDates[book._id];
-          const endDate = endDates[book._id];
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Blurred Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter blur-md"
+        style={{ backgroundImage: "url('/bg-book.jpg')" }}
+      />
+      <div className="absolute inset-0 bg-black bg-opacity-50" />
+      <div className="relative z-10 p-6">
+        <h2 className="text-2xl mb-4 font-semibold text-white drop-shadow">
+          {location ? `Books in ${location}` : "All Books"}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {filteredBooks.map((book: any) => {
+            const startDate = startDates[book._id];
+            const endDate = endDates[book._id];
 
-          const showPicker = openPickerFor === book._id;
+            const showPicker = openPickerFor === book._id;
 
-          return (
-            <div
-              key={book._id}
-              className="border p-4 rounded shadow flex flex-col justify-between"
-            >
-              <div>
-                <p className="font-bold text-lg">{book.title}</p>
-                <p className="text-sm">{book.author}</p>
-                <p className="text-sm">{book.genre}</p>
-                <p className="text-sm text-gray-500">Status: {book.status}</p>
-                {book.status === "borrowed" &&
-                  book.startTime &&
-                  book.endTime && (
-                    <div className="text-sm text-gray-600">
-                      <p>
-                        <strong>From:</strong>{" "}
-                        {new Date(book.startTime).toLocaleDateString()}
-                      </p>
-                      <p>
-                        <strong>To:</strong>{" "}
-                        {new Date(book.endTime).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-              </div>
-
-              {(book.status === "available" || book.status === "borrowed") &&
-                book.borrowedBy?.toString() !== userId && (
-                  <>
-                    <button
-                      onClick={() =>
-                        setOpenPickerFor((prev) =>
-                          prev === book._id ? null : book._id
-                        )
-                      }
-                      className={`mt-4 ${
-                        book.status === "available"
-                          ? "bg-blue-500 hover:bg-blue-600"
-                          : "bg-yellow-500 hover:bg-yellow-600"
-                      } text-white px-4 py-2 rounded`}
-                    >
-                      {openPickerFor === book._id
-                        ? "Cancel"
-                        : book.status === "available"
-                        ? "Book Now"
-                        : "Reserve"}
-                    </button>
-
-                    {showPicker && (
-                      <div className="mt-4 space-y-2">
-                        <div className="text-sm text-gray-700 mb-2">
-                          {startDate && (
-                            <p>
-                              <strong>Start:</strong>{" "}
-                              {startDate.toLocaleDateString()}
-                            </p>
-                          )}
-                          {endDate && (
-                            <p>
-                              <strong>End:</strong>{" "}
-                              {endDate.toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-
-                        <DatePicker
-                          selected={startDate}
-                          onChange={(date) =>
-                            setStartDates((prev) => ({
-                              ...prev,
-                              [book._id]: date,
-                            }))
-                          }
-                          selectsStart
-                          startDate={startDate}
-                          endDate={endDate}
-                          placeholderText="Start Date"
-                          dateFormat="yyyy-MM-dd"
-                          className="border px-2 py-1 rounded w-full"
-                          minDate={
-                            book.status === "borrowed" && book.endTime
-                              ? new Date(
-                                  new Date(book.endTime).getTime() +
-                                    24 * 60 * 60 * 1000
-                                ) // next day
-                              : new Date()
-                          }
-                        />
-
-                        <DatePicker
-                          selected={endDate}
-                          onChange={(date) =>
-                            setEndDates((prev) => ({
-                              ...prev,
-                              [book._id]: date,
-                            }))
-                          }
-                          selectsEnd
-                          startDate={startDate}
-                          endDate={endDate}
-                          placeholderText="End Date"
-                          dateFormat="yyyy-MM-dd"
-                          className="border px-2 py-1 rounded w-full"
-                          minDate={startDate || new Date()}
-                        />
-
-                        <button
-                          onClick={() => handleBookSubmit(book)}
-                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
-                        >
-                          Confirm{" "}
-                          {book.status === "available"
-                            ? "Booking"
-                            : "Reservation"}
-                        </button>
+            return (
+              <div
+                key={book._id}
+                className="border p-4 rounded shadow flex flex-col justify-between bg-white"
+              >
+                <div className="m-auto">
+                  <img src="book.jpg" alt="Book Cover" className="mb-2" />
+                  <p className="font-bold text-lg">{book.title}</p>
+                  <p className="text-sm">{book.author}</p>
+                  <p className="text-sm">{book.genre}</p>
+                  <p className="text-sm text-gray-500">Status: {book.status}</p>
+                  {book.status === "borrowed" &&
+                    book.startTime &&
+                    book.endTime && (
+                      <div className="text-sm text-gray-600">
+                        <p>
+                          <strong>From:</strong>{" "}
+                          {new Date(book.startTime).toLocaleDateString()}
+                        </p>
+                        <p>
+                          <strong>To:</strong>{" "}
+                          {new Date(book.endTime).toLocaleDateString()}
+                        </p>
                       </div>
                     )}
-                  </>
-                )}
+                </div>
 
-              {book.status === "borrowed" &&
-                book.borrowedBy?.toString() === userId && (
-                  <button
-                    disabled
-                    className="mt-4 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
-                  >
-                    Borrowed
-                  </button>
-                )}
-              <PaymentModal
-                isOpen={showPaymentModal}
-                type={book.status === "available" ? "borrowed" : "reserved"}
-                onClose={() => setShowPaymentModal(false)}
-              />
-            </div>
-          );
-        })}
+                {(book.status === "available" || book.status === "borrowed") &&
+                  book.borrowedBy?.toString() !== userId && (
+                    <>
+                      <button
+                        onClick={() =>
+                          setOpenPickerFor((prev) =>
+                            prev === book._id ? null : book._id
+                          )
+                        }
+                        className={`mt-4 ${
+                          book.status === "available"
+                            ? "bg-blue-500 hover:bg-blue-600"
+                            : "bg-yellow-500 hover:bg-yellow-600"
+                        } text-white px-4 py-2 rounded`}
+                      >
+                        {openPickerFor === book._id
+                          ? "Cancel"
+                          : book.status === "available"
+                          ? "Book Now"
+                          : "Reserve"}
+                      </button>
+
+                      {showPicker && (
+                        <div className="mt-4 space-y-2">
+                          <div className="text-sm text-gray-700 mb-2">
+                            {startDate && (
+                              <p>
+                                <strong>Start:</strong>{" "}
+                                {startDate.toLocaleDateString()}
+                              </p>
+                            )}
+                            {endDate && (
+                              <p>
+                                <strong>End:</strong>{" "}
+                                {endDate.toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+
+                          <DatePicker
+                            selected={startDate}
+                            onChange={(date) =>
+                              setStartDates((prev) => ({
+                                ...prev,
+                                [book._id]: date,
+                              }))
+                            }
+                            selectsStart
+                            startDate={startDate}
+                            endDate={endDate}
+                            placeholderText="Start Date"
+                            dateFormat="yyyy-MM-dd"
+                            className="border px-2 py-1 rounded w-full"
+                            minDate={
+                              book.status === "borrowed" && book.endTime
+                                ? new Date(
+                                    new Date(book.endTime).getTime() +
+                                      24 * 60 * 60 * 1000
+                                  ) // next day
+                                : new Date()
+                            }
+                          />
+
+                          <DatePicker
+                            selected={endDate}
+                            onChange={(date) =>
+                              setEndDates((prev) => ({
+                                ...prev,
+                                [book._id]: date,
+                              }))
+                            }
+                            selectsEnd
+                            startDate={startDate}
+                            endDate={endDate}
+                            placeholderText="End Date"
+                            dateFormat="yyyy-MM-dd"
+                            className="border px-2 py-1 rounded w-full"
+                            minDate={startDate || new Date()}
+                          />
+
+                          <button
+                            onClick={() => handleBookSubmit(book)}
+                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
+                          >
+                            Confirm{" "}
+                            {book.status === "available"
+                              ? "Booking"
+                              : "Reservation"}
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                {book.status === "borrowed" &&
+                  book.borrowedBy?.toString() === userId && (
+                    <button
+                      disabled
+                      className="mt-4 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
+                    >
+                      Borrowed
+                    </button>
+                  )}
+                <PaymentModal
+                  isOpen={showPaymentModal}
+                  onClose={() => setShowPaymentModal(false)}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

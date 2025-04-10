@@ -7,6 +7,7 @@ import { Section } from "../components/Section";
 export default function Profile() {
   const [borrowedBooks, setBorrowedBooks] = useState<any[]>([]);
   const [reservedBooks, setReservedBooks] = useState<any[]>([]);
+  const [borrowedEBooks, setBorrowedEBooks] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [disabledLost, setDisabledLost] = useState<string[]>([]);
@@ -24,6 +25,7 @@ export default function Profile() {
 
         setBorrowedBooks(res.data.borrowedBooks || []);
         setReservedBooks(res.data.reservedBooks || []);
+        setBorrowedEBooks(res.data.borrowedEBooks || []);
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
       } finally {
@@ -66,6 +68,7 @@ export default function Profile() {
         color="text-green-700"
         books={borrowedBooks}
         type="borrowed"
+        image="book.jpg"
         disabledLost={disabledLost}
         setBooks={setBorrowedBooks}
       />
@@ -73,8 +76,17 @@ export default function Profile() {
       <Section
         title="Reserved Books"
         color="text-yellow-700"
+        image="book.jpg"
         books={reservedBooks}
         type="reserved"
+      />
+
+      <Section
+        title="Borrowed E-Books"
+        color="text-blue-700"
+        image="ebook.jpg"
+        books={borrowedEBooks}
+        type="ebook"
       />
     </div>
   );
