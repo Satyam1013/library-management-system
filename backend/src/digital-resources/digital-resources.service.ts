@@ -9,12 +9,19 @@ import {
   DigitalResource,
   DigitalResourceDocument,
 } from "./digital-resources.schema";
+import {
+  ActivityType,
+  ItemType,
+  User,
+  UserDocument,
+} from "src/users/users.schema";
 
 @Injectable()
 export class DigitalResourcesService {
   constructor(
     @InjectModel(DigitalResource.name)
     private digitalResourceModel: Model<DigitalResourceDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async findAll(): Promise<DigitalResource[]> {
@@ -26,7 +33,6 @@ export class DigitalResourcesService {
     if (!resource) throw new NotFoundException("Resource not found");
     return resource;
   }
-
   async eBookBorrow(
     bookId: string,
     userId: Types.ObjectId,
@@ -78,6 +84,7 @@ export class DigitalResourcesService {
       );
     }
 
+    // Add to digital resource's borrowedBy array
     book.borrowedBy.push({
       user: new Types.ObjectId(userId),
       startTime: start,
@@ -86,6 +93,23 @@ export class DigitalResourcesService {
     });
 
     await book.save();
+
+    // ➕ Add activity to user
+    await this.userModel.findByIdAndUpdate(userId, {
+      $push: {
+        activityHistory: {
+          action: ActivityType.BORROW,
+          itemType: ItemType.EBOOK,
+          itemId: book._id,
+          timestamp: new Date(),
+          meta: {
+            title: book.title,
+            startTime: start,
+            endTime: end,
+          },
+        },
+      },
+    });
 
     return {
       message: "Book borrowed successfully",

@@ -7,6 +7,7 @@ const Signup = () => {
     name: "",
     email: "",
     password: "",
+    mobile: 0,
     role: "",
   });
 
@@ -70,6 +71,15 @@ const Signup = () => {
             value={form.password}
             onChange={handleChange}
             placeholder="Password"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
+          />
+          <input
+            type="mobile"
+            name="mobile"
+            value={form.mobile}
+            onChange={handleChange}
+            placeholder="Mobile Number"
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
           />

@@ -15,6 +15,7 @@ interface JwtUserPayload {
   role: string;
   name: string;
   email: string;
+  mobile: number;
 }
 
 @Injectable()
@@ -45,6 +46,7 @@ export class AuthService {
         role: user.role,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
       };
       return this.login(payload);
     } catch (error) {
@@ -60,6 +62,7 @@ export class AuthService {
         role: user.role,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
       };
     }
     throw new UnauthorizedException("Invalid credentials");
@@ -72,6 +75,7 @@ export class AuthService {
         role: user.role,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
       };
       return {
         access_token: await this.jwtService.signAsync(payload),

@@ -1,4 +1,10 @@
-import { IsEmail, IsEnum, IsNotEmpty, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsEnum,
+  IsMobilePhone,
+  IsNotEmpty,
+  MinLength,
+} from "class-validator";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -16,6 +22,10 @@ export class CreateUserDto {
   @MinLength(6)
   password: string;
 
-  @IsEnum(UserRole, { message: "role must be admin, user, or librarian" })
+  @IsEnum(UserRole, { message: "role must be admin, student, or librarian" })
   role: UserRole;
+
+  @IsNotEmpty()
+  @IsMobilePhone("en-IN") // Or use your region code
+  mobile: number;
 }

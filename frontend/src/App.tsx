@@ -93,9 +93,14 @@ export default function App() {
         <Route
           path="/profile"
           element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
+            <PrivateRoute
+              allowedRoles={["student"]}
+              element={
+                <MainLayout>
+                  <Profile />
+                </MainLayout>
+              }
+            />
           }
         />
       </Routes>

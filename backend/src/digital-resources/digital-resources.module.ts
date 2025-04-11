@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { DigitalResourcesService } from "./digital-resources.service";
 import { DigitalResourcesController } from "./digital-resources.controller";
@@ -6,6 +6,7 @@ import {
   DigitalResource,
   DigitalResourceSchema,
 } from "./digital-resources.schema";
+import { UsersModule } from "src/users/users.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import {
         schema: DigitalResourceSchema,
       },
     ]),
+    forwardRef(() => UsersModule),
   ],
   controllers: [DigitalResourcesController],
   providers: [DigitalResourcesService],

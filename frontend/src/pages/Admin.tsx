@@ -1,21 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Book } from "../types/books";
-
-interface DigitalResource {
-  _id?: string;
-  resourceId: string;
-  title: string;
-  author: string;
-  category: string;
-  fileUrl: string;
-  cost: number;
-}
+import { DigitalResource } from "./Digital-Resources";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"books" | "resources">("books");
 
-  // Books state
   const [books, setBooks] = useState<Book[]>([]);
   const [newBook, setNewBook] = useState<Book>({
     copyId: "",
@@ -25,10 +15,9 @@ export default function AdminDashboard() {
     isbn: "",
     category: "",
     location: "",
-    status: "available", // 🆕
+    status: "available",
   });
 
-  // eBooks state
   const [resources, setResources] = useState<DigitalResource[]>([]);
   const [newResource, setNewResource] = useState<DigitalResource>({
     resourceId: "",
@@ -39,7 +28,7 @@ export default function AdminDashboard() {
     cost: 0,
   });
 
-  // API calls
+  // Fetch Data
   const fetchBooks = async () => {
     const res = await axios.get("http://localhost:3001/admin/books");
     setBooks(res.data);
@@ -50,27 +39,57 @@ export default function AdminDashboard() {
     setResources(res.data);
   };
 
+  // Create Entries
   const addBook = async () => {
+    if (!newBook.title || !newBook.author || !newBook.bookId)
+      return alert("Please fill in all required book fields.");
     await axios.post("http://localhost:3001/admin/create-book", newBook);
     fetchBooks();
-  };
-
-  const deleteBook = async (id: string) => {
-    await axios.delete(`http://localhost:3001/admin/books/${id}`);
-    fetchBooks();
+    setNewBook({
+      ...newBook,
+      title: "",
+      author: "",
+      isbn: "",
+      category: "",
+      location: "",
+      bookId: "",
+    });
   };
 
   const addResource = async () => {
+    if (!newResource.title || !newResource.author || !newResource.resourceId)
+      return alert("Please fill in all required eBook fields.");
     await axios.post(
       "http://localhost:3001/admin/digital-resources",
       newResource
     );
     fetchResources();
+    setNewResource({
+      ...newResource,
+      title: "",
+      author: "",
+      category: "",
+      fileUrl: "",
+      resourceId: "",
+      cost: 0,
+    });
+  };
+
+  // Delete
+  const deleteBook = async (id: string) => {
+    await axios.delete(`http://localhost:3001/admin/books/${id}`);
+    fetchBooks();
   };
 
   const deleteResource = async (id: string) => {
     await axios.delete(`http://localhost:3001/admin/resources/${id}`);
     fetchResources();
+  };
+
+  const handleLogout = () => {
+    // Add your token clearing / auth logic here
+    localStorage.clear(); // or remove token only
+    window.location.href = "/login"; // redirect to login
   };
 
   useEffect(() => {
@@ -79,12 +98,21 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="p-6 min-h-screen bg-gray-50">
+      <header className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
+        >
+          Logout
+        </button>
+      </header>
 
+      {/* Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 rounded font-semibold ${
             activeTab === "books" ? "bg-blue-600 text-white" : "bg-gray-200"
           }`}
           onClick={() => setActiveTab("books")}
@@ -92,7 +120,7 @@ export default function AdminDashboard() {
           Manage Books
         </button>
         <button
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 rounded font-semibold ${
             activeTab === "resources"
               ? "bg-green-600 text-white"
               : "bg-gray-200"
@@ -103,10 +131,10 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Books Tab */}
+      {/* Book Section */}
       {activeTab === "books" && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Add Book</h2>
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Add New Book</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <input
               className="border p-2"
@@ -160,24 +188,24 @@ export default function AdminDashboard() {
             />
           </div>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={addBook}
           >
             Add Book
           </button>
 
-          <h2 className="text-xl font-semibold mt-8 mb-4">All Books</h2>
+          <h3 className="text-xl font-semibold mt-8 mb-4">All Books</h3>
           <ul className="space-y-2">
             {books.map((book) => (
               <li
                 key={book._id}
-                className="flex justify-between items-center border p-2 rounded"
+                className="flex justify-between items-center border p-2 rounded bg-white shadow-sm"
               >
                 <span>
                   <strong>{book.title}</strong> by {book.author}
                 </span>
                 <button
-                  className="text-red-500"
+                  className="text-red-500 hover:underline"
                   onClick={() => deleteBook(book._id!)}
                 >
                   Delete
@@ -185,13 +213,13 @@ export default function AdminDashboard() {
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      {/* eBooks Tab */}
+      {/* Resource Section */}
       {activeTab === "resources" && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Add eBook</h2>
+        <section>
+          <h2 className="text-xl font-semibold mb-4">Add New eBook</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <input
               className="border p-2"
@@ -247,24 +275,24 @@ export default function AdminDashboard() {
             />
           </div>
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             onClick={addResource}
           >
             Add eBook
           </button>
 
-          <h2 className="text-xl font-semibold mt-8 mb-4">All eBooks</h2>
+          <h3 className="text-xl font-semibold mt-8 mb-4">All eBooks</h3>
           <ul className="space-y-2">
             {resources.map((res) => (
               <li
                 key={res._id}
-                className="flex justify-between items-center border p-2 rounded"
+                className="flex justify-between items-center border p-2 rounded bg-white shadow-sm"
               >
                 <span>
                   <strong>{res.title}</strong> ({res.category})
                 </span>
                 <button
-                  className="text-red-500"
+                  className="text-red-500 hover:underline"
                   onClick={() => deleteResource(res._id!)}
                 >
                   Delete
@@ -272,7 +300,7 @@ export default function AdminDashboard() {
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
     </div>
   );

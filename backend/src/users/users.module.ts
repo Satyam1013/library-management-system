@@ -14,6 +14,6 @@ import { DigitalResourcesModule } from "src/digital-resources/digital-resources.
   ],
   providers: [UsersService],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, MongooseModule],
 })
 export class UsersModule {}

@@ -66,36 +66,36 @@ export function Navbar() {
             Digital Resources
           </a>
 
-          <div className="relative">
-            <button
-              onClick={toggleDropdown}
-              className="flex items-center gap-2 hover:bg-gray-700 px-3 py-2 rounded"
-            >
-              <User size={18} /> Profile
-            </button>
+          {userName && (
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="flex items-center gap-2 hover:bg-gray-700 px-3 py-2 rounded"
+              >
+                <User size={18} /> Profile
+              </button>
 
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow z-50">
-                <a
-                  href="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100"
-                >
-                  My Profile
-                </a>
-                {userName && (
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow z-50">
+                  <a
+                    href="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    My Profile
+                  </a>
                   <span className="block px-4 py-2 text-sm text-gray-600">
                     Hi, {userName}
                   </span>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {!userName && (
             <button
@@ -147,21 +147,26 @@ export function Navbar() {
           </a>
 
           <div className="border-t border-gray-600 pt-2">
-            <a href="/profile" className="block px-3 py-2">
-              <span className="flex items-center gap-2">
-                <User size={18} />
-                My Profile
-              </span>
-            </a>
             {userName && (
-              <p className="px-3 py-1 text-sm text-gray-300">Hi, {userName}</p>
+              <>
+                <a href="/profile" className="block px-3 py-2">
+                  <span className="flex items-center gap-2">
+                    <User size={18} />
+                    My Profile
+                  </span>
+                </a>
+                <p className="px-3 py-1 text-sm text-gray-300">
+                  Hi, {userName}
+                </p>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-3 py-2 text-red-400 hover:bg-gray-600 rounded"
+                >
+                  Logout
+                </button>
+              </>
             )}
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-3 py-2 text-red-400 hover:bg-gray-600 rounded"
-            >
-              Logout
-            </button>
+
             {!userName && (
               <button
                 onClick={() => navigate("/login")}

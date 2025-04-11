@@ -50,24 +50,37 @@ export class UsersService {
   }
 
   async getStats() {
+    // 📚 Book stats
     const totalBooks = await this.bookModel.countDocuments();
-    const borrowed = await this.bookModel.countDocuments({
+    const borrowedBooks = await this.bookModel.countDocuments({
       status: "borrowed",
     });
-    const reserved = await this.bookModel.countDocuments({
+    const reservedBooks = await this.bookModel.countDocuments({
       status: "reserved",
     });
-    const available = await this.bookModel.countDocuments({
+    const availableBooks = await this.bookModel.countDocuments({
       status: "available",
     });
-    const resources = await this.digitalResourceModel.countDocuments();
+    const lostBooks = await this.bookModel.countDocuments({ status: "lost" });
+
+    // 💾 Ebook stats
+    const totalEbooks = await this.digitalResourceModel.countDocuments();
+    const borrowedEbooks = await this.digitalResourceModel.countDocuments({
+      borrowedBy: { $exists: true, $not: { $size: 0 } },
+    });
 
     return {
-      books: totalBooks,
-      borrowed,
-      reserved,
-      available,
-      resources,
+      books: {
+        total: totalBooks,
+        available: availableBooks,
+        reserved: reservedBooks,
+        borrowed: borrowedBooks,
+        lost: lostBooks,
+      },
+      ebooks: {
+        total: totalEbooks,
+        borrowed: borrowedEbooks,
+      },
     };
   }
 }

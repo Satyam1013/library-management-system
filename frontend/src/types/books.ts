@@ -9,3 +9,13 @@ export interface Book {
   location: string;
   status: "available" | "reserved" | "borrowed" | "lost";
 }
+
+export interface DigitalResource {
+  _id?: string;
+  resourceId: string;
+  title: string;
+  author: string;
+  category: string;
+  fileUrl: string;
+  cost: number;
+}

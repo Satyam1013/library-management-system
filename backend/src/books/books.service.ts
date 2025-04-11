@@ -8,10 +8,19 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { AvailabilityStatus, Book, BookDocument } from "./books.schema";
 import { CreateBookDto } from "./books.dto";
+import {
+  ActivityType,
+  ItemType,
+  User,
+  UserDocument,
+} from "src/users/users.schema";
 
 @Injectable()
 export class BooksService {
-  constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
+  constructor(
+    @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
   async create(bookData: CreateBookDto) {
     const book = new this.bookModel(bookData);
@@ -72,6 +81,23 @@ export class BooksService {
     book.endTime = end;
     await book.save();
 
+    // ➕ Add activity to user
+    await this.userModel.findByIdAndUpdate(userId, {
+      $push: {
+        activityHistory: {
+          action: ActivityType.BORROW,
+          itemType: ItemType.BOOK,
+          itemId: book._id,
+          timestamp: new Date(),
+          meta: {
+            title: book.title,
+            startTime: start,
+            endTime: end,
+          },
+        },
+      },
+    });
+
     return {
       message: "Book borrowed successfully",
       updatedBook: book,
@@ -125,6 +151,23 @@ export class BooksService {
 
       await book.save();
 
+      // ➕ Log reservation activity
+      await this.userModel.findByIdAndUpdate(userId, {
+        $push: {
+          activityHistory: {
+            action: ActivityType.RESERVE,
+            itemType: ItemType.BOOK,
+            itemId: book._id,
+            timestamp: new Date(),
+            meta: {
+              title: book.title,
+              reserveStartTime: start,
+              reserveEndTime: end,
+            },
+          },
+        },
+      });
+
       return {
         message: "Book reserved successfully",
         updatedBook: book,
@@ -142,6 +185,23 @@ export class BooksService {
 
     book.status = AvailabilityStatus.Lost;
     await book.save();
+
+    // 📝 Log in activity history (only if user info is available)
+    if (book.borrowedBy) {
+      await this.userModel.findByIdAndUpdate(book.borrowedBy, {
+        $push: {
+          activityHistory: {
+            action: ActivityType.LOST,
+            itemType: ItemType.BOOK,
+            itemId: book._id,
+            timestamp: new Date(),
+            meta: {
+              title: book.title,
+            },
+          },
+        },
+      });
+    }
 
     return { message: "Book marked as lost" };
   }
@@ -199,6 +259,23 @@ export class BooksService {
       book.isRenewed = true;
 
       await book.save();
+
+      // 📝 Track in user activity history
+      await this.userModel.findByIdAndUpdate(userId, {
+        $push: {
+          activityHistory: {
+            action: ActivityType.RENEW,
+            itemType: ItemType.BOOK,
+            itemId: book._id,
+            timestamp: new Date(),
+            meta: {
+              title: book.title,
+              newStartTime: start,
+              newEndTime: end,
+            },
+          },
+        },
+      });
 
       return { message: "Book renewed successfully" };
     } catch (error) {
