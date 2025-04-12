@@ -72,14 +72,14 @@ export function Navbar() {
             </select>
           )}
           <a href="/books" className="hover:bg-gray-700 px-3 py-2 rounded flex">
-            <BookOpen size={24} className="mr-2" /> {/* Book Icon */}
+            <BookOpen size={24} className="mr-2" />
             Books
           </a>
           <a
             href="/resources"
             className="hover:bg-gray-700 px-3 py-2 rounded flex"
           >
-            <FileText size={24} className="mr-2" /> {/* Ebook Icon */}
+            <FileText size={24} className="mr-2" />
             Digital Resources
           </a>
           {userName && (

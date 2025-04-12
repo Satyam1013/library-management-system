@@ -145,7 +145,11 @@ export function Section({
               <p className="font-bold text-lg mb-1">{book.title}</p>
               <p className="text-sm text-gray-600 mb-1">by {book.author}</p>
               <p className="text-sm mb-1">Category: {book.category}</p>
-              <p className="text-sm mb-1">Location: {book.location}</p>
+              {type === "ebook" ? (
+                <p className="text-sm mb-1">Cost: {book.cost}</p>
+              ) : (
+                <p className="text-sm mb-1">Location: {book.location}</p>
+              )}
 
               {type === "borrowed" && (
                 <>

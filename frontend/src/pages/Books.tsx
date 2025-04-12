@@ -9,6 +9,8 @@ export default function Books() {
   const [books, setBooks] = useState([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedBookForPayment, setSelectedBookForPayment] =
+    useState<any>(null);
   const { location } = useLocation();
   const [openPickerFor, setOpenPickerFor] = useState<string | null>(null);
   const [startDates, setStartDates] = useState<Record<string, Date | null>>({});
@@ -36,7 +38,61 @@ export default function Books() {
     ? books.filter((book: any) => book.location === location)
     : books;
 
-  const handleBookSubmit = async (book: any) => {
+  const submitBooking = async (book: any) => {
+    const startDate = startDates[book._id];
+    const endDate = endDates[book._id];
+
+    const now = new Date();
+    let adjustedStart = new Date(startDate!);
+    if (
+      startDate!.toDateString() === now.toDateString() &&
+      adjustedStart.getTime() <= now.getTime()
+    ) {
+      adjustedStart.setHours(now.getHours(), now.getMinutes() + 1, 0, 0);
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const isBorrowing = book.status === "available";
+
+      const endpoint = isBorrowing
+        ? `http://localhost:3001/books/${book._id}/borrow`
+        : `http://localhost:3001/books/${book._id}/reserve`;
+
+      const payload = isBorrowing
+        ? {
+            startTime: adjustedStart.toISOString(),
+            endTime: endDate!.toISOString(),
+          }
+        : {
+            reserveStartTime: adjustedStart.toISOString(),
+            reserveEndTime: endDate!.toISOString(),
+          };
+
+      const response = await axios.post(endpoint, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const updatedBook = response.data.updatedBook;
+
+      setBooks((prevBooks: any) =>
+        prevBooks.map((b: any) => (b._id === updatedBook._id ? updatedBook : b))
+      );
+
+      alert(response.data.message);
+
+      setOpenPickerFor(null);
+      setStartDates((prev) => ({ ...prev, [book._id]: null }));
+      setEndDates((prev) => ({ ...prev, [book._id]: null }));
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+  const validateAndProceedToPayment = (book: any) => {
     const startDate = startDates[book._id];
     const endDate = endDates[book._id];
 
@@ -64,58 +120,9 @@ export default function Books() {
       return;
     }
 
-    const now = new Date();
-    let adjustedStart = new Date(startDate);
-    if (
-      startDate.toDateString() === now.toDateString() &&
-      adjustedStart.getTime() <= now.getTime()
-    ) {
-      adjustedStart.setHours(now.getHours(), now.getMinutes() + 1, 0, 0);
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const isBorrowing = book.status === "available";
-
-      const endpoint = isBorrowing
-        ? `http://localhost:3001/books/${book._id}/borrow`
-        : `http://localhost:3001/books/${book._id}/reserve`;
-
-      const payload = isBorrowing
-        ? {
-            startTime: adjustedStart.toISOString(),
-            endTime: endDate.toISOString(),
-          }
-        : {
-            reserveStartTime: adjustedStart.toISOString(),
-            reserveEndTime: endDate.toISOString(),
-          };
-
-      const response = await axios.post(endpoint, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const updatedBook = response.data.updatedBook;
-
-      setBooks((prevBooks: any) =>
-        prevBooks.map((b: any) => (b._id === updatedBook._id ? updatedBook : b))
-      );
-
-      if (response.data.message?.toLowerCase().includes("borrowed")) {
-        setShowPaymentModal(true);
-      } else {
-        alert(response.data.message);
-      }
-
-      setOpenPickerFor(null);
-      setStartDates((prev) => ({ ...prev, [book._id]: null }));
-      setEndDates((prev) => ({ ...prev, [book._id]: null }));
-    } catch (error: any) {
-      console.error(error);
-      alert(error.response?.data?.message || "Something went wrong");
-    }
+    // Open payment modal after validation
+    setSelectedBookForPayment(book);
+    setShowPaymentModal(true);
   };
 
   return (
@@ -134,7 +141,6 @@ export default function Books() {
           {filteredBooks.map((book: any) => {
             const startDate = startDates[book._id];
             const endDate = endDates[book._id];
-
             const showPicker = openPickerFor === book._id;
 
             return (
@@ -222,7 +228,7 @@ export default function Books() {
                                 ? new Date(
                                     new Date(book.endTime).getTime() +
                                       24 * 60 * 60 * 1000
-                                  ) // next day
+                                  )
                                 : new Date()
                             }
                           />
@@ -245,7 +251,7 @@ export default function Books() {
                           />
 
                           <button
-                            onClick={() => handleBookSubmit(book)}
+                            onClick={() => validateAndProceedToPayment(book)}
                             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full"
                           >
                             Confirm{" "}
@@ -267,15 +273,27 @@ export default function Books() {
                       Borrowed
                     </button>
                   )}
-                <PaymentModal
-                  isOpen={showPaymentModal}
-                  onClose={() => setShowPaymentModal(false)}
-                />
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Modal */}
+      {selectedBookForPayment && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setSelectedBookForPayment(null);
+          }}
+          onSuccess={() => {
+            setShowPaymentModal(false);
+            submitBooking(selectedBookForPayment);
+            setSelectedBookForPayment(null);
+          }}
+        />
+      )}
     </div>
   );
 }
