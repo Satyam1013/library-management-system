@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
+import PaymentModal from "./PaymentModal";
 
 export function Section({
   title,
@@ -245,71 +246,25 @@ export function Section({
         </div>
       )}
 
-      {/* Lost Payment Modal */}
-      {showPaymentModal && lostBookId && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-4">
-              Confirm Lost Book Payment
-            </h3>
-            <p className="mb-4">
-              You're about to mark this book as lost. Proceed with the payment?
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setShowPaymentModal(false);
-                  setLostBookId(null);
-                }}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePaymentConfirm}
-                className="px-4 py-2 bg-red-600 text-white rounded"
-              >
-                Pay & Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showRenewPaymentModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-4">Confirm Renewal Payment</h3>
-            <p className="mb-4">
-              You're about to renew this book. Proceed with the payment?
-            </p>
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setLostBookId(null);
+        }}
+        onSuccess={handlePaymentConfirm}
+      />
 
-            {renewErrorMessage && (
-              <div className="text-red-600 text-sm mb-4">
-                {renewErrorMessage}
-              </div>
-            )}
+      <PaymentModal
+        isOpen={showRenewPaymentModal}
+        onClose={() => {
+          setShowRenewPaymentModal(false);
+          setRenewBookId(null);
+          setRenewErrorMessage("");
+        }}
+        onSuccess={handleRenewPaymentConfirm}
+      />
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setShowRenewPaymentModal(false);
-                  setRenewBookId(null);
-                  setRenewErrorMessage("");
-                }}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRenewPaymentConfirm}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Pay & Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {showPdfModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-4 rounded shadow-md max-w-4xl w-full h-[80%] flex flex-col">

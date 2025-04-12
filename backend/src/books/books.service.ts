@@ -14,12 +14,14 @@ import {
   User,
   UserDocument,
 } from "src/users/users.schema";
+import { StatusCheckService } from "src/status-handler/status-handler.service";
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly statusCheckService: StatusCheckService,
   ) {}
 
   async create(bookData: CreateBookDto) {
@@ -28,7 +30,10 @@ export class BooksService {
   }
 
   async findAll() {
-    return this.bookModel.find();
+    await this.statusCheckService.updateBookStatuses();
+    return this.bookModel.find({
+      status: { $ne: AvailabilityStatus.Lost },
+    });
   }
 
   async findOne(id: string) {
@@ -184,6 +189,18 @@ export class BooksService {
     }
 
     book.status = AvailabilityStatus.Lost;
+
+    // 🔄 Clean up borrow and reservation fields
+    book.borrowedBy = null as unknown as Types.ObjectId;
+    book.reservedBy = null as unknown as Types.ObjectId;
+
+    book.startTime = null;
+    book.endTime = null;
+    book.isRenewed = false;
+
+    book.reserveStartTime = null;
+    book.reserveEndTime = null;
+
     await book.save();
 
     // 📝 Log in activity history (only if user info is available)

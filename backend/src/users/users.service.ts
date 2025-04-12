@@ -7,6 +7,7 @@ import {
   DigitalResource,
   DigitalResourceDocument,
 } from "src/digital-resources/digital-resources.schema";
+import { StatusCheckService } from "src/status-handler/status-handler.service";
 
 @Injectable()
 export class UsersService {
@@ -15,6 +16,7 @@ export class UsersService {
     @InjectModel(Book.name) private readonly bookModel: Model<Book>,
     @InjectModel(DigitalResource.name)
     private digitalResourceModel: Model<DigitalResourceDocument>,
+    private readonly statusCheckService: StatusCheckService,
   ) {}
 
   async findById(id: string) {
@@ -29,6 +31,9 @@ export class UsersService {
 
   async getUserBooks(userId: string | Types.ObjectId) {
     const objectUserId = new Types.ObjectId(userId);
+
+    await this.statusCheckService.updateBookStatuses();
+    await this.statusCheckService.updateDigitalResourceStatuses();
 
     const borrowedBooks = await this.bookModel.find({
       borrowedBy: objectUserId,
@@ -50,6 +55,10 @@ export class UsersService {
   }
 
   async getStats() {
+    // 🛠 Update all statuses first
+    await this.statusCheckService.updateBookStatuses();
+    await this.statusCheckService.updateDigitalResourceStatuses();
+
     // 📚 Book stats
     const totalBooks = await this.bookModel.countDocuments();
     const borrowedBooks = await this.bookModel.countDocuments({

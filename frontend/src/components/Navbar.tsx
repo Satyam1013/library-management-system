@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation as useReactRouterLocation,
+} from "react-router-dom";
 import { useLocation } from "../context/LocationContext";
 import { jwtDecode } from "jwt-decode";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, BookOpen, Library, FileText } from "lucide-react"; // Import new icons
 
 interface DecodedToken {
   name?: string;
@@ -15,6 +18,7 @@ export function Navbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const currentPath = useReactRouterLocation().pathname; // Get the current location
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,34 +42,46 @@ export function Navbar() {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
+  // Check if current path is '/profile' or '/books' to conditionally show the location select
+  const showLocationSelect =
+    currentPath === "/profile" || currentPath === "/books";
+
   return (
     <nav className="bg-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Library Management</h1>
+        <h1
+          className="text-xl font-bold flex items-center cursor-pointer"
+          onClick={() => navigate("/")}
+        >
+          <Library size={24} className="mr-2" /> {/* Library Icon */}
+          Library Management
+        </h1>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-4">
-          <select
-            className="px-2 py-1 rounded text-black"
-            value={location ?? ""}
-            onChange={(e) => setLocation(e.target.value || null)}
-          >
-            <option value="">All Locations</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Bangalore">Bangalore</option>
-          </select>
-
-          <a href="/" className="hover:bg-gray-700 px-3 py-2 rounded">
-            Home
-          </a>
-          <a href="/books" className="hover:bg-gray-700 px-3 py-2 rounded">
+          {showLocationSelect && (
+            <select
+              className="px-4 py-2 rounded-lg text-black bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={location ?? ""}
+              onChange={(e) => setLocation(e.target.value || null)}
+            >
+              <option value="">All Locations</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bangalore">Bangalore</option>
+            </select>
+          )}
+          <a href="/books" className="hover:bg-gray-700 px-3 py-2 rounded flex">
+            <BookOpen size={24} className="mr-2" /> {/* Book Icon */}
             Books
           </a>
-          <a href="/resources" className="hover:bg-gray-700 px-3 py-2 rounded">
+          <a
+            href="/resources"
+            className="hover:bg-gray-700 px-3 py-2 rounded flex"
+          >
+            <FileText size={24} className="mr-2" /> {/* Ebook Icon */}
             Digital Resources
           </a>
-
           {userName && (
             <div className="relative">
               <button
@@ -96,7 +112,6 @@ export function Navbar() {
               )}
             </div>
           )}
-
           {!userName && (
             <button
               onClick={() => navigate("/login")}
@@ -119,20 +134,19 @@ export function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2 bg-gray-700 text-white">
-          <select
-            className="w-full px-2 py-1 rounded text-black"
-            value={location ?? ""}
-            onChange={(e) => setLocation(e.target.value || null)}
-          >
-            <option value="">All Locations</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Bangalore">Bangalore</option>
-          </select>
+          {showLocationSelect && (
+            <select
+              className="w-full px-4 py-2 rounded-lg text-black bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={location ?? ""}
+              onChange={(e) => setLocation(e.target.value || null)}
+            >
+              <option value="">All Locations</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Bangalore">Bangalore</option>
+            </select>
+          )}
 
-          <a href="/" className="block hover:bg-gray-600 px-3 py-2 rounded">
-            Home
-          </a>
           <a
             href="/books"
             className="block hover:bg-gray-600 px-3 py-2 rounded"

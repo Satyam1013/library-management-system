@@ -15,6 +15,7 @@ import {
   User,
   UserDocument,
 } from "src/users/users.schema";
+import { StatusCheckService } from "src/status-handler/status-handler.service";
 
 @Injectable()
 export class DigitalResourcesService {
@@ -22,9 +23,11 @@ export class DigitalResourcesService {
     @InjectModel(DigitalResource.name)
     private digitalResourceModel: Model<DigitalResourceDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly statusCheckService: StatusCheckService,
   ) {}
 
   async findAll(): Promise<DigitalResource[]> {
+    await this.statusCheckService.updateDigitalResourceStatuses();
     return this.digitalResourceModel.find();
   }
 
@@ -33,6 +36,7 @@ export class DigitalResourcesService {
     if (!resource) throw new NotFoundException("Resource not found");
     return resource;
   }
+
   async eBookBorrow(
     bookId: string,
     userId: Types.ObjectId,

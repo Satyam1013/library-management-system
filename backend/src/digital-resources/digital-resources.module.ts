@@ -7,6 +7,7 @@ import {
   DigitalResourceSchema,
 } from "./digital-resources.schema";
 import { UsersModule } from "src/users/users.module";
+import { StatusCheckModule } from "src/status-handler/status-handler.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UsersModule } from "src/users/users.module";
       },
     ]),
     forwardRef(() => UsersModule),
+    StatusCheckModule,
   ],
   controllers: [DigitalResourcesController],
   providers: [DigitalResourcesService],

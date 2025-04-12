@@ -45,20 +45,19 @@ export class Book {
 
   // New reservation time fields
   @Prop({ type: Date, default: null })
-  reserveStartTime: Date;
+  startTime: Date | null;
 
   @Prop({ type: Date, default: null })
-  reserveEndTime: Date;
+  endTime: Date | null;
 
-  // Borrowed time fields
   @Prop({ type: Date, default: null })
-  startTime: Date;
+  reserveStartTime: Date | null;
+
+  @Prop({ type: Date, default: null })
+  reserveEndTime: Date | null;
 
   @Prop({ type: Boolean, default: false })
   isRenewed: boolean;
-
-  @Prop({ type: Date, default: null })
-  endTime: Date;
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);
