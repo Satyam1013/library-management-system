@@ -18,6 +18,10 @@ export class AdminService {
   ) {}
 
   // BOOKS
+  async getAllBooks() {
+    return this.bookModel.find();
+  }
+
   async createBook(data: CreateBookDto) {
     try {
       const count = await this.bookModel.countDocuments({
@@ -72,10 +76,6 @@ export class AdminService {
     const deleted = await this.digitalModel.findByIdAndDelete(id);
     if (!deleted) throw new NotFoundException("Resource not found");
     return { message: "Digital resource deleted successfully" };
-  }
-
-  async getAllBooks() {
-    return this.bookModel.find();
   }
 
   async getAllDigitalResources() {

@@ -82,14 +82,13 @@ export default function AdminDashboard() {
   };
 
   const deleteResource = async (id: string) => {
-    await axios.delete(`http://localhost:3001/admin/resources/${id}`);
+    await axios.delete(`http://localhost:3001/admin/digital-resources/${id}`);
     fetchResources();
   };
 
   const handleLogout = () => {
-    // Add your token clearing / auth logic here
-    localStorage.clear(); // or remove token only
-    window.location.href = "/login"; // redirect to login
+    localStorage.clear();
+    window.location.href = "/login";
   };
 
   useEffect(() => {
@@ -199,17 +198,30 @@ export default function AdminDashboard() {
             {books.map((book) => (
               <li
                 key={book._id}
-                className="flex justify-between items-center border p-2 rounded bg-white shadow-sm"
+                className="border p-4 rounded bg-white shadow-sm"
               >
-                <span>
-                  <strong>{book.title}</strong> by {book.author}
-                </span>
-                <button
-                  className="text-red-500 hover:underline"
-                  onClick={() => deleteBook(book._id!)}
-                >
-                  Delete
-                </button>
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <strong className="text-lg">{book.title}</strong> by{" "}
+                    <span className="text-gray-600">{book.author}</span>
+                  </div>
+                  <button
+                    className="text-red-500 hover:underline"
+                    onClick={() => deleteBook(book._id!)}
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  <p>Book ID: {book.bookId}</p>
+                  <p>Copy ID: {book.copyId}</p>
+                  <p>ISBN: {book.isbn || "N/A"}</p>
+                  <p>Category: {book.category}</p>
+                  <p>Location: {book.location}</p>
+                  <p>
+                    Status: <span className="capitalize">{book.status}</span>
+                  </p>
+                </div>
               </li>
             ))}
           </ul>
@@ -286,17 +298,25 @@ export default function AdminDashboard() {
             {resources.map((res) => (
               <li
                 key={res._id}
-                className="flex justify-between items-center border p-2 rounded bg-white shadow-sm"
+                className="border p-4 rounded bg-white shadow-sm"
               >
-                <span>
-                  <strong>{res.title}</strong> ({res.category})
-                </span>
-                <button
-                  className="text-red-500 hover:underline"
-                  onClick={() => deleteResource(res._id!)}
-                >
-                  Delete
-                </button>
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <strong className="text-lg">{res.title}</strong> by{" "}
+                    <span className="text-gray-600">{res.author}</span>
+                  </div>
+                  <button
+                    className="text-red-500 hover:underline"
+                    onClick={() => deleteResource(res._id!)}
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="text-sm text-gray-700">
+                  <p>Resource ID: {res.resourceId}</p>
+                  <p>Category: {res.category}</p>
+                  <p>Cost: ₹{res.cost}</p>
+                </div>
               </li>
             ))}
           </ul>
