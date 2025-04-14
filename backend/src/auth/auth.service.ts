@@ -15,7 +15,7 @@ interface JwtUserPayload {
   role: string;
   name: string;
   email: string;
-  mobile: number;
+  mobile: string;
 }
 
 @Injectable()

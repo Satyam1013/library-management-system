@@ -51,7 +51,7 @@ export class User {
   password: string;
 
   @Prop({ required: true })
-  mobile: number;
+  mobile: string;
 
   @Prop({ type: [UserActivitySchema], default: [] })
   activityHistory: UserActivity[];

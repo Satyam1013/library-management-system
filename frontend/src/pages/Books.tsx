@@ -4,6 +4,7 @@ import { useLocation } from "../context/LocationContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PaymentModal from "../components/PaymentModal";
+import { toast } from "react-toastify"; // Import toast
 
 export default function Books() {
   const [books, setBooks] = useState([]);
@@ -81,14 +82,15 @@ export default function Books() {
         prevBooks.map((b: any) => (b._id === updatedBook._id ? updatedBook : b))
       );
 
-      alert(response.data.message);
+      // Show success toast
+      toast.success(response.data.message);
 
       setOpenPickerFor(null);
       setStartDates((prev) => ({ ...prev, [book._id]: null }));
       setEndDates((prev) => ({ ...prev, [book._id]: null }));
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -102,12 +104,12 @@ export default function Books() {
       !(endDate instanceof Date) ||
       isNaN(endDate.getTime())
     ) {
-      alert("Please select valid start and end dates.");
+      toast.error("Please select valid start and end dates.");
       return;
     }
 
     if (endDate <= startDate) {
-      alert("End date must be after start date.");
+      toast.error("End date must be after start date.");
       return;
     }
 
@@ -116,7 +118,7 @@ export default function Books() {
     );
 
     if (diffInDays > 28) {
-      alert("Booking period cannot exceed 4 weeks (28 days).");
+      toast.error("Booking period cannot exceed 4 weeks (28 days).");
       return;
     }
 

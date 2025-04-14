@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 interface DecodedToken {
   role: string;
@@ -31,7 +32,7 @@ export default function Login() {
         navigate("/");
       }
     } catch (err) {
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
     }
   };
 

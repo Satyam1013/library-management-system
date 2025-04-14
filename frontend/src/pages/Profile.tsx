@@ -3,6 +3,7 @@ import axios from "axios";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Section } from "../components/Section";
+import { toast } from "react-toastify";
 
 export default function Profile() {
   const [borrowedBooks, setBorrowedBooks] = useState<any[]>([]);
@@ -47,7 +48,7 @@ export default function Profile() {
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then(() => {
-          alert("Book marked as lost!");
+          toast.error("Book marked as lost!");
           setDisabledLost((prev) => [...prev, bookId]);
           navigate("/profile");
         })

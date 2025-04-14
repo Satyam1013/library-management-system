@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import PaymentModal from "./PaymentModal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export function Section({
   title,
@@ -55,12 +57,12 @@ export function Section({
     const maxDiff = 28 * 24 * 60 * 60 * 1000;
 
     if (startDate <= prevEndTime!) {
-      alert("Start date must be after current end date.");
+      toast.error("Start date must be after current end date."); // Show error toast
       return;
     }
 
     if (endDate.getTime() - startDate.getTime() > maxDiff) {
-      alert("End date cannot be more than 28 days after start date.");
+      toast.error("End date cannot be more than 28 days after start date."); // Show error toast
       return;
     }
 
@@ -81,7 +83,7 @@ export function Section({
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert("Book renewed successfully!");
+      toast.success("Book renewed successfully!");
       setShowRenewPaymentModal(false);
       setRenewBookId(null);
       setRenewErrorMessage("");
@@ -89,6 +91,7 @@ export function Section({
     } catch (err: any) {
       const errorMsg = err?.response?.data?.message || "Something went wrong";
       setRenewErrorMessage(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -100,8 +103,6 @@ export function Section({
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Book marked as lost!");
-
       // 🔥 Update status of lost book in the books array
       const updatedBooks = books.map((book) =>
         book._id === lostBookId ? { ...book, status: "lost" } : book
@@ -116,6 +117,7 @@ export function Section({
       setLostBookId(null);
     } catch (err) {
       console.error("Failed to mark book as lost:", err);
+      toast.error("Failed to mark book as lost."); // Show error toast
     }
   };
 
@@ -177,6 +179,7 @@ export function Section({
                       className={`${
                         book.reservations?.length > 0 ||
                         book.status === "lost" ||
+                        book.status === "reserved" ||
                         book.isRenewed
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-blue-500 hover:bg-blue-600"
@@ -184,6 +187,7 @@ export function Section({
                       disabled={
                         book.reservations?.length > 0 ||
                         book.status === "lost" ||
+                        book.status === "reserved" ||
                         book.isRenewed
                       }
                     >

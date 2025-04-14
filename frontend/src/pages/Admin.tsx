@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Book } from "../types/books";
 import { DigitalResource } from "./Digital-Resources";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"books" | "resources">("books");
@@ -42,7 +44,7 @@ export default function AdminDashboard() {
   // Create Entries
   const addBook = async () => {
     if (!newBook.title || !newBook.author || !newBook.bookId)
-      return alert("Please fill in all required book fields.");
+      return toast.error("Please fill in all required book fields.");
     await axios.post("http://localhost:3001/admin/create-book", newBook);
     fetchBooks();
     setNewBook({
@@ -54,11 +56,12 @@ export default function AdminDashboard() {
       location: "",
       bookId: "",
     });
+    toast.success("Book added successfully!");
   };
 
   const addResource = async () => {
     if (!newResource.title || !newResource.author || !newResource.resourceId)
-      return alert("Please fill in all required eBook fields.");
+      return toast.error("Please fill in all required eBook fields.");
     await axios.post(
       "http://localhost:3001/admin/digital-resources",
       newResource
@@ -73,17 +76,20 @@ export default function AdminDashboard() {
       resourceId: "",
       cost: 0,
     });
+    toast.success("eBook added successfully!");
   };
 
   // Delete
   const deleteBook = async (id: string) => {
     await axios.delete(`http://localhost:3001/admin/books/${id}`);
     fetchBooks();
+    toast.success("Book deleted successfully!");
   };
 
   const deleteResource = async (id: string) => {
     await axios.delete(`http://localhost:3001/admin/digital-resources/${id}`);
     fetchResources();
+    toast.success("eBook deleted successfully!");
   };
 
   const handleLogout = () => {

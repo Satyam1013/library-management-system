@@ -14,6 +14,8 @@ import { JSX } from "react";
 import MainLayout from "./components/MainLayout";
 import DigitalResources from "./pages/Digital-Resources";
 import Profile from "./pages/Profile";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface DecodedToken {
   role: string;
@@ -52,6 +54,8 @@ const PrivateRoute = ({
 export default function App() {
   return (
     <Router>
+      {/* Toast Container should be outside Routes to be available globally */}
+      <ToastContainer position="top-center" autoClose={3000} />
       <Routes>
         {/* Routes without Navbar */}
         <Route path="/login" element={<Login />} />
@@ -94,7 +98,7 @@ export default function App() {
           path="/profile"
           element={
             <PrivateRoute
-              allowedRoles={["student"]}
+              allowedRoles={["student", "librarian"]}
               element={
                 <MainLayout>
                   <Profile />

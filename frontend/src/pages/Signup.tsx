@@ -7,15 +7,17 @@ const Signup = () => {
     name: "",
     email: "",
     password: "",
-    mobile: 0,
-    role: "",
+    mobile: "",
+    role: "student",
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -75,7 +77,7 @@ const Signup = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
           />
           <input
-            type="mobile"
+            type="text"
             name="mobile"
             value={form.mobile}
             onChange={handleChange}
@@ -83,14 +85,16 @@ const Signup = () => {
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
           />
-          <input
-            type="text"
+          <select
             name="role"
             value={form.role}
             onChange={handleChange}
-            placeholder="Role (optional)"
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 outline-none"
-          />
+          >
+            <option value="student">Student</option>
+            <option value="librarian">Librarian</option>
+          </select>
           <button
             type="submit"
             disabled={loading}

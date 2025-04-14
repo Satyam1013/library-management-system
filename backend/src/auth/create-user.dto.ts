@@ -26,6 +26,6 @@ export class CreateUserDto {
   role: UserRole;
 
   @IsNotEmpty()
-  @IsMobilePhone("en-IN") // Or use your region code
-  mobile: number;
+  @IsMobilePhone("en-IN")
+  mobile: string;
 }
