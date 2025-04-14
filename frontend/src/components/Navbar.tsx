@@ -5,7 +5,7 @@ import {
 } from "react-router-dom";
 import { useLocation } from "../context/LocationContext";
 import { jwtDecode } from "jwt-decode";
-import { Menu, X, User, BookOpen, Library, FileText } from "lucide-react"; // Import new icons
+import { Menu, X, User, BookOpen, Library, FileText } from "lucide-react";
 
 interface DecodedToken {
   name?: string;
@@ -18,7 +18,7 @@ export function Navbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const currentPath = useReactRouterLocation().pathname; // Get the current location
+  const currentPath = useReactRouterLocation().pathname;
 
   useEffect(() => {
     const token = localStorage.getItem("token");

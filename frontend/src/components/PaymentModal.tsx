@@ -45,7 +45,7 @@ export default function PaymentModal({
       onClose();
       onSuccess?.();
       navigate("/profile");
-    }, 2000); // 2 seconds
+    }, 2000);
   };
 
   if (!isOpen) return null;
