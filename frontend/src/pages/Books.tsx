@@ -4,7 +4,7 @@ import { useLocation } from "../context/LocationContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PaymentModal from "../components/PaymentModal";
-import { toast } from "react-toastify"; // Import toast
+import { toast } from "react-toastify";
 
 export default function Books() {
   const [books, setBooks] = useState([]);
