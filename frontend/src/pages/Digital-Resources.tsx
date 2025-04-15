@@ -43,62 +43,61 @@ export default function DigitalResources() {
     setOpenPickerFor((prev) => (prev === res._id ? null : res._id || null));
   };
 
-const handleConfirmBooking = (res: DigitalResource) => {
-  const start = startDates[res._id!];
-  const end = endDates[res._id!];
+  const handleConfirmBooking = (res: DigitalResource) => {
+    const start = startDates[res._id!];
+    const end = endDates[res._id!];
 
-  if (
-    !(start instanceof Date) ||
-    !(end instanceof Date) ||
-    isNaN(start.getTime()) ||
-    isNaN(end.getTime())
-  ) {
-    toast.error("Please select valid start and end dates.");
-    return;
-  }
+    if (
+      !(start instanceof Date) ||
+      !(end instanceof Date) ||
+      isNaN(start.getTime()) ||
+      isNaN(end.getTime())
+    ) {
+      toast.error("Please select valid start and end dates.");
+      return;
+    }
 
-  if (end <= start) {
-    toast.error("End date must be after start date.");
-    return;
-  }
+    if (end <= start) {
+      toast.error("End date must be after start date.");
+      return;
+    }
 
-  setSelectedResource(res);
-  setShowPaymentModal(true);
-};
+    setSelectedResource(res);
+    setShowPaymentModal(true);
+  };
 
-const handlePaymentSuccess = async () => {
-  if (!selectedResource) return;
-  const token = localStorage.getItem("token");
+  const handlePaymentSuccess = async () => {
+    if (!selectedResource) return;
+    const token = localStorage.getItem("token");
 
-  try {
-    await axios.post(
-      `http://localhost:3001/digital-resources/${selectedResource._id}/borrow`,
-      {
-        startTime: startDates[selectedResource._id!],
-        endTime: endDates[selectedResource._id!],
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      await axios.post(
+        `http://localhost:3001/digital-resources/${selectedResource._id}/borrow`,
+        {
+          startTime: startDates[selectedResource._id!],
+          endTime: endDates[selectedResource._id!],
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    toast.success("E-Book booked successfully!");
+      toast.success("E-Book booked successfully!");
 
-    // Add the resource ID to the booked set
-    setBookedResourceIds((prev) => new Set(prev).add(selectedResource._id!));
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err.response?.data?.message || "Failed to borrow resource.");
-  } finally {
-    setShowPaymentModal(false);
-    setOpenPickerFor(null);
-    setStartDates((prev) => ({ ...prev, [selectedResource?._id!]: null }));
-    setEndDates((prev) => ({ ...prev, [selectedResource?._id!]: null }));
-  }
-};
-
+      // Add the resource ID to the booked set
+      setBookedResourceIds((prev) => new Set(prev).add(selectedResource._id!));
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to borrow resource.");
+    } finally {
+      setShowPaymentModal(false);
+      setOpenPickerFor(null);
+      setStartDates((prev) => ({ ...prev, [selectedResource?._id!]: null }));
+      setEndDates((prev) => ({ ...prev, [selectedResource?._id!]: null }));
+    }
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -203,6 +202,7 @@ const handlePaymentSuccess = async () => {
             isOpen={showPaymentModal}
             onClose={() => setShowPaymentModal(false)}
             onSuccess={handlePaymentSuccess}
+            actionType="borrow"
           />
         )}
       </div>

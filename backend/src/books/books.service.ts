@@ -190,17 +190,6 @@ export class BooksService {
 
     book.status = AvailabilityStatus.Lost;
 
-    // 🔄 Clean up borrow and reservation fields
-    book.borrowedBy = null as unknown as Types.ObjectId;
-    book.reservedBy = null as unknown as Types.ObjectId;
-
-    book.startTime = null;
-    book.endTime = null;
-    book.isRenewed = false;
-
-    book.reserveStartTime = null;
-    book.reserveEndTime = null;
-
     await book.save();
 
     // 📝 Log in activity history (only if user info is available)

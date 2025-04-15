@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { User, UserDocument } from "./users.schema";
-import { Book } from "src/books/books.schema";
+import { AvailabilityStatus, Book } from "src/books/books.schema";
 import {
   DigitalResource,
   DigitalResourceDocument,
@@ -37,10 +37,17 @@ export class UsersService {
 
     const borrowedBooks = await this.bookModel.find({
       borrowedBy: objectUserId,
+      status: { $ne: AvailabilityStatus.Lost },
     });
 
     const reservedBooks = await this.bookModel.find({
       reservedBy: objectUserId,
+      status: { $ne: AvailabilityStatus.Lost },
+    });
+
+    const lostBooks = await this.bookModel.find({
+      borrowedBy: objectUserId,
+      status: AvailabilityStatus.Lost,
     });
 
     const borrowedEBooks = await this.digitalResourceModel.find({
@@ -51,7 +58,7 @@ export class UsersService {
       },
     });
 
-    return { borrowedBooks, reservedBooks, borrowedEBooks };
+    return { borrowedBooks, reservedBooks, lostBooks, borrowedEBooks };
   }
 
   async getStats() {

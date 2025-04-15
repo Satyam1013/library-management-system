@@ -18,7 +18,7 @@ export class StatusCheckService {
   async updateBookStatuses() {
     const currentTime = new Date();
 
-    // 1. Make expired borrowed books available
+    // ✅ 1. Borrowed books -> Available if endTime has passed
     await this.bookModel.updateMany(
       {
         status: AvailabilityStatus.Borrowed,
@@ -35,25 +35,31 @@ export class StatusCheckService {
       },
     );
 
-    // 2. Convert reserved books to borrowed using reserveStart/EndTime
-    await this.bookModel.updateMany(
-      {
-        status: AvailabilityStatus.Reserved,
-        reserveEndTime: { $lt: currentTime },
-      },
-      [
+    // ✅ 2. Reserved books -> Borrowed if endTime has passed and status is Reserved
+    const booksToUpdate = await this.bookModel.find({
+      status: AvailabilityStatus.Reserved,
+      endTime: { $lt: currentTime },
+    });
+
+    for (const book of booksToUpdate) {
+      await this.bookModel.updateOne(
+        { _id: book._id },
         {
           $set: {
             status: AvailabilityStatus.Borrowed,
-            startTime: "$reserveStartTime",
-            endTime: "$reserveEndTime",
+            startTime: book.reserveStartTime,
+            endTime: book.reserveEndTime,
+            borrowedBy: book.reservedBy,
+            reservedBy: null,
+            isRenewed: false,
+          },
+          $unset: {
+            reserveStartTime: "",
+            reserveEndTime: "",
           },
         },
-        {
-          $unset: ["reserveStartTime", "reserveEndTime"],
-        },
-      ],
-    );
+      );
+    }
   }
 
   async updateDigitalResourceStatuses() {

@@ -95,7 +95,7 @@ export function Section({
     }
   };
 
-  const handlePaymentConfirm = async () => {
+  const handleLostPaymentConfirm = async () => {
     if (!lostBookId) return;
     try {
       await axios.patch(
@@ -260,7 +260,8 @@ export function Section({
           setShowPaymentModal(false);
           setLostBookId(null);
         }}
-        onSuccess={handlePaymentConfirm}
+        onSuccess={handleLostPaymentConfirm}
+        actionType="lost"
       />
 
       <PaymentModal
@@ -271,6 +272,7 @@ export function Section({
           setRenewErrorMessage("");
         }}
         onSuccess={handleRenewPaymentConfirm}
+        actionType="renew"
       />
 
       {showPdfModal && (

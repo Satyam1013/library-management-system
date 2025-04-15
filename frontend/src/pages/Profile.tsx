@@ -9,6 +9,7 @@ export default function Profile() {
   const [borrowedBooks, setBorrowedBooks] = useState<any[]>([]);
   const [reservedBooks, setReservedBooks] = useState<any[]>([]);
   const [borrowedEBooks, setBorrowedEBooks] = useState<any[]>([]);
+  const [lostBooks, setLostBooks] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [disabledLost, setDisabledLost] = useState<string[]>([]);
@@ -17,25 +18,35 @@ export default function Profile() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get(`http://localhost:3001/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+ useEffect(() => {
+   const fetchProfile = async () => {
+     try {
+       const res = await axios.get(`http://localhost:3001/users/profile`, {
+         headers: { Authorization: `Bearer ${token}` },
+       });
 
-        setBorrowedBooks(res.data.borrowedBooks || []);
-        setReservedBooks(res.data.reservedBooks || []);
-        setBorrowedEBooks(res.data.borrowedEBooks || []);
-      } catch (err) {
-        console.error("Failed to fetch user profile:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+       setBorrowedBooks(res.data.borrowedBooks || []);
+       setReservedBooks(res.data.reservedBooks || []);
+       setBorrowedEBooks(res.data.borrowedEBooks || []);
+       setLostBooks(res.data.lostBooks || []);
 
-    fetchProfile();
-  }, [token]);
+       // 🔥 Check for a new lost book
+       const storedLost = localStorage.getItem("newLostBook");
+       if (storedLost) {
+         const lostBook = JSON.parse(storedLost);
+         setLostBooks((prev) => [...prev, lostBook]);
+         localStorage.removeItem("newLostBook");
+       }
+     } catch (err) {
+       console.error("Failed to fetch user profile:", err);
+     } finally {
+       setLoading(false);
+     }
+   };
+
+   fetchProfile();
+ }, [lostBooks, token]);
+
 
   // Mark book as lost if redirected from payment
   useEffect(() => {
@@ -88,6 +99,14 @@ export default function Profile() {
         image="ebook.jpg"
         books={borrowedEBooks}
         type="ebook"
+      />
+
+      <Section
+        title="Lost Books"
+        color="text-red-700"
+        image="book.jpg"
+        books={lostBooks}
+        type="borrowed"
       />
     </div>
   );

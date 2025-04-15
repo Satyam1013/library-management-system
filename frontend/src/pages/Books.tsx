@@ -294,6 +294,9 @@ export default function Books() {
             submitBooking(selectedBookForPayment);
             setSelectedBookForPayment(null);
           }}
+          actionType={
+            selectedBookForPayment?.status === "available" ? "borrow" : "renew"
+          }
         />
       )}
     </div>
