@@ -96,10 +96,9 @@ export default function PaymentModal({
   };
 
   const handlePay = () => {
-    // Skip validation if librarian
+    // Skip validation if librarian (except lost)
     if (role !== "librarian") {
       const newErrors: Record<string, string> = {};
-
       if (!cardNumber.trim()) newErrors.cardNumber = "Card number is required.";
       if (!cardName.trim()) newErrors.cardName = "Name on card is required.";
       if (!expiry.trim()) newErrors.expiry = "Expiry date is required.";
@@ -117,14 +116,13 @@ export default function PaymentModal({
     setTimeout(() => {
       setLoading(false);
       toast.success("Payment Successful!");
-      setErrors({});
       onClose();
       onSuccess?.();
       navigate("/profile");
     }, 2000);
   };
 
-  if (!isOpen || (role === "librarian" && actionType !== "lost")) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -136,7 +134,7 @@ export default function PaymentModal({
           <div className="flex justify-center items-center py-8">
             <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : role === "librarian" ? (
+        ) : role === "librarian" && actionType !== "lost" ? (
           <>
             <button
               onClick={handlePay}
@@ -153,7 +151,7 @@ export default function PaymentModal({
           </>
         ) : (
           <>
-            {/* Card Fields for non-librarian */}
+            {/* Payment Form */}
             <div className="space-y-2">
               <div>
                 <input

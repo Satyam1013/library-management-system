@@ -57,17 +57,17 @@ export function Section({
     const maxDiff = 28 * 24 * 60 * 60 * 1000;
 
     if (startDate <= prevEndTime!) {
-      toast.error("Start date must be after current end date."); // Show error toast
+      toast.error("Start date must be after current end date.");
       return;
     }
 
     if (endDate.getTime() - startDate.getTime() > maxDiff) {
-      toast.error("End date cannot be more than 28 days after start date."); // Show error toast
+      toast.error("End date cannot be more than 28 days after start date.");
       return;
     }
 
-    setShowRenewPaymentModal(true); // open payment modal
-    setOpenModal(false); // close date modal
+    setShowRenewPaymentModal(true);
+    setOpenModal(false);
   };
 
   const handleRenewPaymentConfirm = async () => {
@@ -103,7 +103,7 @@ export function Section({
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // 🔥 Update status of lost book in the books array
+
       const updatedBooks = books.map((book) =>
         book._id === lostBookId ? { ...book, status: "lost" } : book
       );
@@ -117,7 +117,7 @@ export function Section({
       setLostBookId(null);
     } catch (err) {
       console.error("Failed to mark book as lost:", err);
-      toast.error("Failed to mark book as lost."); // Show error toast
+      toast.error("Failed to mark book as lost.");
     }
   };
 
@@ -254,26 +254,31 @@ export function Section({
         </div>
       )}
 
-      <PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setLostBookId(null);
-        }}
-        onSuccess={handleLostPaymentConfirm}
-        actionType="lost"
-      />
+      {/* Payment Modals (Only for "borrowed") */}
+      {type === "borrowed" && (
+        <>
+          <PaymentModal
+            isOpen={showPaymentModal}
+            onClose={() => {
+              setShowPaymentModal(false);
+              setLostBookId(null);
+            }}
+            onSuccess={handleLostPaymentConfirm}
+            actionType="lost"
+          />
 
-      <PaymentModal
-        isOpen={showRenewPaymentModal}
-        onClose={() => {
-          setShowRenewPaymentModal(false);
-          setRenewBookId(null);
-          setRenewErrorMessage("");
-        }}
-        onSuccess={handleRenewPaymentConfirm}
-        actionType="renew"
-      />
+          <PaymentModal
+            isOpen={showRenewPaymentModal}
+            onClose={() => {
+              setShowRenewPaymentModal(false);
+              setRenewBookId(null);
+              setRenewErrorMessage("");
+            }}
+            onSuccess={handleRenewPaymentConfirm}
+            actionType="renew"
+          />
+        </>
+      )}
 
       {showPdfModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
