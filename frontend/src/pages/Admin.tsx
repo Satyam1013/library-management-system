@@ -18,6 +18,7 @@ export default function AdminDashboard() {
     category: "",
     location: "",
     status: "available",
+    cost: 0,
   });
 
   const [resources, setResources] = useState<DigitalResource[]>([]);
@@ -55,6 +56,7 @@ export default function AdminDashboard() {
       category: "",
       location: "",
       bookId: "",
+      cost: 0,
     });
     toast.success("Book added successfully!");
   };

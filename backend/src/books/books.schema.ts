@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
+import { UserDocument } from "src/users/users.schema";
 
 export type BookDocument = Book & Document;
 
@@ -41,7 +42,7 @@ export class Book {
 
   // Changed from an array to a single reservedBy
   @Prop({ type: Types.ObjectId, ref: "User", default: null })
-  reservedBy: Types.ObjectId;
+  reservedBy: Types.ObjectId | UserDocument;
 
   // New reservation time fields
   @Prop({ type: Date, default: null })
@@ -55,6 +56,9 @@ export class Book {
 
   @Prop({ type: Date, default: null })
   reserveEndTime: Date | null;
+
+  @Prop({ required: true })
+  cost: number;
 
   @Prop({ type: Boolean, default: false })
   isRenewed: boolean;

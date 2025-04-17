@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import {
   BadRequestException,
   ForbiddenException,
@@ -15,6 +17,7 @@ import {
   UserDocument,
 } from "src/users/users.schema";
 import { StatusCheckService } from "src/status-handler/status-handler.service";
+import { MailService } from "src/mail/mail.service";
 
 @Injectable()
 export class BooksService {
@@ -22,6 +25,7 @@ export class BooksService {
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly statusCheckService: StatusCheckService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(bookData: CreateBookDto) {
@@ -182,34 +186,52 @@ export class BooksService {
     }
   }
 
-  async markAsLost(id: string) {
-    const book = await this.bookModel.findById(id);
-    if (!book) {
-      throw new NotFoundException("Book not found");
-    }
+  async markAsLost(id: string): Promise<{ message: string }> {
+    try {
+      const book = await this.bookModel
+        .findById(id)
+        .populate<{ reservedBy: UserDocument }>("reservedBy");
 
-    book.status = AvailabilityStatus.Lost;
+      if (!book) {
+        throw new NotFoundException("Book not found");
+      }
 
-    await book.save();
+      book.status = AvailabilityStatus.Lost;
 
-    // 📝 Log in activity history (only if user info is available)
-    if (book.borrowedBy) {
-      await this.userModel.findByIdAndUpdate(book.borrowedBy, {
-        $push: {
-          activityHistory: {
-            action: ActivityType.LOST,
-            itemType: ItemType.BOOK,
-            itemId: book._id,
-            timestamp: new Date(),
-            meta: {
-              title: book.title,
+      await book.save();
+
+      // 📨 Send refund email if reserved user is available
+      const reservedUser = book.reservedBy;
+      if (reservedUser && "email" in reservedUser) {
+        const refundAmount = book.cost || 100;
+        await this.mailService.sendBookLostRefundEmail(
+          reservedUser.email,
+          book.title,
+          refundAmount,
+        );
+      }
+
+      // 📜 Log activity
+      if (book.borrowedBy) {
+        await this.userModel.findByIdAndUpdate(book.borrowedBy, {
+          $push: {
+            activityHistory: {
+              action: ActivityType.LOST,
+              itemType: ItemType.BOOK,
+              itemId: book._id,
+              timestamp: new Date(),
+              meta: {
+                title: book.title,
+              },
             },
           },
-        },
-      });
-    }
+        });
+      }
 
-    return { message: "Book marked as lost" };
+      return { message: "Book marked as lost" };
+    } catch (error) {
+      throw new BadRequestException(error.message || "Something went wrong");
+    }
   }
 
   async renewBook(
@@ -252,7 +274,7 @@ export class BooksService {
 
       if (
         book.reservedBy &&
-        book.reservedBy.toString() !== userId.toString() &&
+        book.reservedBy?.toString() !== userId.toString() &&
         book.reserveStartTime &&
         book.reserveEndTime &&
         new Date() <= book.reserveEndTime
@@ -285,7 +307,6 @@ export class BooksService {
 
       return { message: "Book renewed successfully" };
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       throw new BadRequestException(error.message || "Something went wrong");
     }
   }

@@ -5,12 +5,14 @@ import { BooksController } from "./books.controller";
 import { Book, BookSchema } from "./books.schema";
 import { UsersModule } from "src/users/users.module";
 import { StatusCheckModule } from "src/status-handler/status-handler.module";
+import { MailModule } from "src/mail/mail.module";
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Book.name, schema: BookSchema }]),
     forwardRef(() => UsersModule),
     StatusCheckModule,
+    MailModule,
   ],
   controllers: [BooksController],
   providers: [BooksService],

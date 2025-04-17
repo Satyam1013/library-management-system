@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { Book, BookDocument } from "../books/books.schema";
+import { AvailabilityStatus, Book, BookDocument } from "../books/books.schema";
 import {
   DigitalResource,
   DigitalResourceDocument,
@@ -33,7 +33,7 @@ export class AdminService {
       const newBook = await this.bookModel.create({
         ...data,
         copyId,
-        status: "available",
+        status: AvailabilityStatus.Available,
       });
 
       return newBook;

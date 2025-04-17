@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -82,6 +84,29 @@ export class AuthService {
       };
     } catch (error) {
       console.log("Error:", error);
+    }
+  }
+
+  async changePassword(
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    try {
+      const user = await this.userModel.findOne({ email });
+      if (!user) throw new NotFoundException("User not found");
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) throw new BadRequestException("Old password is incorrect");
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedNewPassword;
+      await user.save();
+
+      return { message: "Password changed successfully" };
+    } catch (error) {
+      console.error("Error changing password:", error);
+      throw new BadRequestException("Failed to change password");
     }
   }
 }

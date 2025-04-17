@@ -13,6 +13,10 @@ interface DecodedToken {
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -33,6 +37,33 @@ export default function Login() {
       }
     } catch (err) {
       toast.error("Invalid credentials");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!email || !oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    try {
+      await axios.patch("http://localhost:3001/auth/change-password", {
+        email,
+        oldPassword,
+        newPassword,
+      });
+      toast.success("Password changed successfully!");
+      setShowChangePassword(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      toast.error("Failed to change password");
     }
   };
 
@@ -60,6 +91,7 @@ export default function Login() {
         >
           Login
         </button>
+
         <p className="mt-4 text-center text-sm text-gray-700">
           Don&apos;t have an account?{" "}
           <Link
@@ -69,6 +101,54 @@ export default function Login() {
             Sign up
           </Link>
         </p>
+
+        {/* Change Password Toggle */}
+        <p
+          className="text-sm text-center text-blue-600 hover:underline mt-4 cursor-pointer"
+          onClick={() => setShowChangePassword(!showChangePassword)}
+        >
+          {showChangePassword ? "Hide" : "Forgot Password?"}
+        </p>
+
+        {/* Change Password Section */}
+        {showChangePassword && (
+          <div className="mt-6">
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full mb-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Old Password"
+              className="w-full mb-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="New Password"
+              className="w-full mb-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              className="w-full mb-6 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <button
+              onClick={handleChangePassword}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition duration-300"
+            >
+              Update Password
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

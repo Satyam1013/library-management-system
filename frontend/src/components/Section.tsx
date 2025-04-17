@@ -30,7 +30,6 @@ export function Section({
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [prevEndTime, setPrevEndTime] = useState<Date | null>(null);
   const [showRenewPaymentModal, setShowRenewPaymentModal] = useState(false);
-  const [renewErrorMessage, setRenewErrorMessage] = useState("");
   const [showPdfModal, setShowPdfModal] = useState(false);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -86,11 +85,9 @@ export function Section({
       toast.success("Book renewed successfully!");
       setShowRenewPaymentModal(false);
       setRenewBookId(null);
-      setRenewErrorMessage("");
       window.location.reload();
     } catch (err: any) {
       const errorMsg = err?.response?.data?.message || "Something went wrong";
-      setRenewErrorMessage(errorMsg);
       toast.error(errorMsg);
     }
   };
@@ -272,7 +269,6 @@ export function Section({
             onClose={() => {
               setShowRenewPaymentModal(false);
               setRenewBookId(null);
-              setRenewErrorMessage("");
             }}
             onSuccess={handleRenewPaymentConfirm}
             actionType="renew"
