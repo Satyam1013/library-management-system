@@ -18,35 +18,36 @@ export default function Profile() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
- useEffect(() => {
-   const fetchProfile = async () => {
-     try {
-       const res = await axios.get(`http://localhost:3001/users/profile`, {
-         headers: { Authorization: `Bearer ${token}` },
-       });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3001/users/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-       setBorrowedBooks(res.data.borrowedBooks || []);
-       setReservedBooks(res.data.reservedBooks || []);
-       setBorrowedEBooks(res.data.borrowedEBooks || []);
-       setLostBooks(res.data.lostBooks || []);
+        setBorrowedBooks(res.data.borrowedBooks || []);
+        setReservedBooks(res.data.reservedBooks || []);
+        setBorrowedEBooks(res.data.borrowedEBooks || []);
+        setLostBooks(res.data.lostBooks || []);
 
-       // 🔥 Check for a new lost book
-       const storedLost = localStorage.getItem("newLostBook");
-       if (storedLost) {
-         const lostBook = JSON.parse(storedLost);
-         setLostBooks((prev) => [...prev, lostBook]);
-         localStorage.removeItem("newLostBook");
-       }
-     } catch (err) {
-       console.error("Failed to fetch user profile:", err);
-     } finally {
-       setLoading(false);
-     }
-   };
+        // 🔥 Check for a new lost book
+        const storedLost = localStorage.getItem("newLostBook");
+        if (storedLost) {
+          const lostBook = JSON.parse(storedLost);
+          setLostBooks((prev) => [...prev, lostBook]);
+          localStorage.removeItem("newLostBook");
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-   fetchProfile();
- }, [lostBooks, token]);
-
+    if (token) {
+      fetchProfile();
+    }
+  }, [token]);
 
   // Mark book as lost if redirected from payment
   useEffect(() => {
