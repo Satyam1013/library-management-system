@@ -8,6 +8,7 @@ import {
 } from "../digital-resources/digital-resources.schema";
 import { CreateBookDto } from "src/books/books.dto";
 import { CreateDigitalResourceDto } from "src/digital-resources/digital-resources.dto";
+import { User } from "src/users/users.schema";
 
 @Injectable()
 export class AdminService {
@@ -15,11 +16,18 @@ export class AdminService {
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(DigitalResource.name)
     private digitalModel: Model<DigitalResourceDocument>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   // BOOKS
   async getAllBooks() {
     return this.bookModel.find();
+  }
+
+  async getUserActivity() {
+    const users = await this.userModel.find({ role: { $ne: "admin" } });
+    // const activityHistory = users.map((user) => user.activityHistory);
+    return users;
   }
 
   async createBook(data: CreateBookDto) {

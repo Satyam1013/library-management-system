@@ -4,6 +4,7 @@ import { Book } from "../types/books";
 import { DigitalResource } from "./Digital-Resources";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UserDetails from "./UserDetails";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"books" | "resources">("books");
@@ -115,7 +116,6 @@ export default function AdminDashboard() {
           Logout
         </button>
       </header>
-
       {/* Tabs */}
       <div className="flex space-x-4 mb-6">
         <button
@@ -137,7 +137,6 @@ export default function AdminDashboard() {
           Manage eBooks
         </button>
       </div>
-
       {/* Book Section */}
       {activeTab === "books" && (
         <section>
@@ -235,7 +234,6 @@ export default function AdminDashboard() {
           </ul>
         </section>
       )}
-
       {/* Resource Section */}
       {activeTab === "resources" && (
         <section>
@@ -330,6 +328,7 @@ export default function AdminDashboard() {
           </ul>
         </section>
       )}
+      <UserDetails />
     </div>
   );
 }

@@ -15,6 +15,11 @@ import { CreateDigitalResourceDto } from "src/digital-resources/digital-resource
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Get("user-activity")
+  async getUserActivity() {
+    return await this.adminService.getUserActivity();
+  }
+
   @Post("create-book")
   createBook(@Body() body: CreateBookDto) {
     return this.adminService.createBook(body);
@@ -47,12 +52,10 @@ export class AdminController {
   deleteDigital(@Param("id") id: string) {
     return this.adminService.deleteDigitalResource(id);
   }
-
   @Get("books")
   getBooks() {
     return this.adminService.getAllBooks();
   }
-
   @Get("resources")
   getDigitalResources() {
     return this.adminService.getAllDigitalResources();
